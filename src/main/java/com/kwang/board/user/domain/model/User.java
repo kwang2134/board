@@ -43,6 +43,13 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @PrePersist
+    public void setDefaultRole() {
+        if (this.role == null) {
+            this.role = Role.USER;
+        }
+    }
+
     public void modify(String username, String password) {
         this.username = username;
         this.password = password;
