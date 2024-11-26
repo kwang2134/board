@@ -1,16 +1,17 @@
 package com.kwang.board.comment.usecase;
 
+import com.kwang.board.comment.application.dto.CommentUpdateDTO;
+import com.kwang.board.comment.domain.model.Comment;
+
+import java.util.List;
+
 public interface CommentCrudUseCase {
-    /*Comment createComt(CommentDTO.UserRequest comtDTO);
+    Comment createComt(Comment comt);
 
-    Comment createComt(CommentDTO.NonUserRequest comtDTO);
-
-    Comment updateComt(Long comtId, CommentDTO.UserRequest comtDTO);
-
-    Comment updateComt(Long comtId, CommentDTO.NonUserRequest comtDTO);*/
+    Comment updateComt(Long comtId, CommentUpdateDTO dto);
 
     void deleteComt(Long comtId);
 
-//    List<CommentDTO.Response> viewComts(Long postId);
+    List<Comment> viewComts(Long postId);
 
 }

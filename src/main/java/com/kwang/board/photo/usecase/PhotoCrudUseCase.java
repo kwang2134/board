@@ -10,5 +10,5 @@ public interface PhotoCrudUseCase {
 
     void deletePhoto(Long photoId);
 
-//    List<PhotoDTO> viewPhotos(Long postId);
+    List<Photo> viewPhotos(Long postId);
 }

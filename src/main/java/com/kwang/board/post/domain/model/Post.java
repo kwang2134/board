@@ -3,6 +3,7 @@ package com.kwang.board.post.domain.model;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.domain.BaseEntity;
 import com.kwang.board.photo.domain.model.Photo;
+import com.kwang.board.post.application.dto.PostUpdateDTO;
 import com.kwang.board.user.domain.model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,8 +55,11 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos = new ArrayList<>();
 
-    public void modify(String title, String content){
-        this.title = title;
-        this.content = content;
+    public void modify(PostUpdateDTO dto){
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        if (dto.getPostType() != null) {
+            this.postType = PostType.valueOf(dto.getPostType());
+        }
     }
 }

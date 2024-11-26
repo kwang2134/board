@@ -1,6 +1,6 @@
 package com.kwang.board.post.usecase;
 
-import com.kwang.board.post.application.dto.PostDTO;
+import com.kwang.board.post.domain.model.Post;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public interface RecommendPostUseCase {
 
     void changeTypeRecom(Long postId);
 
-    List<PostDTO.Response> viewPopularPosts();
+    List<Post> viewPopularPosts();
 }

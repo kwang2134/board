@@ -3,6 +3,7 @@ package com.kwang.board.user.domain.model;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.domain.BaseEntity;
 import com.kwang.board.post.domain.model.Post;
+import com.kwang.board.user.application.dto.UserUpdateDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,8 +51,9 @@ public class User extends BaseEntity {
         }
     }
 
-    public void modify(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public void modify(UserUpdateDTO dto) {
+        this.username = dto.getUsername();
+        this.password = dto.getPassword();
+        this.email = dto.getEmail();
     }
 }

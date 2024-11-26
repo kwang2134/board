@@ -1,5 +1,6 @@
 package com.kwang.board.comment.domain.model;
 
+import com.kwang.board.comment.application.dto.CommentUpdateDTO;
 import com.kwang.board.global.domain.BaseEntity;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.domain.model.User;
@@ -47,7 +48,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
-    public void modify(String content) {
-        this.content = content;
+    public void modify(CommentUpdateDTO dto) {
+        this.content = dto.getContent();
     }
 }
