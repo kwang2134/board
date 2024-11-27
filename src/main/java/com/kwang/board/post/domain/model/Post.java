@@ -62,4 +62,28 @@ public class Post extends BaseEntity {
             this.postType = PostType.valueOf(dto.getPostType());
         }
     }
+
+    public int recommendPost() {
+        this.recomCount++;
+
+        return recomCount;
+    }
+
+    public int notRecommendPost() {
+        this.notRecomCount++;
+
+        return notRecomCount;
+    }
+
+    public void changeTypeNormal() {
+        this.postType = PostType.NORMAL;
+    }
+
+    public void changeTypeNotice() {
+        this.postType = PostType.NOTICE;
+    }
+
+    public void changeTypePopular() {
+        this.postType = PostType.POPULAR;
+    }
 }
