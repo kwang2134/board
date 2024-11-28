@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -48,7 +50,18 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
+    @OneToMany(mappedBy = "parentComment")
+    private List<Comment> childComments = new ArrayList<>();
+
     public void modify(CommentUpdateDTO dto) {
         this.content = dto.getContent();
+    }
+
+    public void setParentComment(Comment parentComment) {
+        this.parentComment = parentComment;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

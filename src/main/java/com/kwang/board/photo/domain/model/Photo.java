@@ -18,8 +18,11 @@ public class Photo {
     @Column(name = "photo_id")
     private Long id;
 
-    @Column(name = "photo_name", nullable = false)
-    private String photoName;
+    @Column(name = "saved_photo_name", nullable = false)
+    private String savedPhotoName;
+
+    @Column(name = "original_photo_name", nullable = false)
+    private String originalPhotoName;
 
     @Column(name = "photo_path", nullable = false)
     private String photoPath;

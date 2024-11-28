@@ -6,7 +6,7 @@ import com.kwang.board.comment.domain.model.Comment;
 import java.util.List;
 
 public interface CommentCrudUseCase {
-    Comment createComt(Comment comt);
+    Comment createComt(Comment comt, Long parentId, Long postId);
 
     Comment updateComt(Long comtId, CommentUpdateDTO dto);
 
