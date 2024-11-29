@@ -1,5 +1,7 @@
 package com.kwang.board.post.application.service;
 
+import com.kwang.board.global.exception.exceptions.post.AlreadyNotRecommendedException;
+import com.kwang.board.global.exception.exceptions.post.AlreadyRecommendedException;
 import com.kwang.board.global.exception.exceptions.post.PostNotFoundException;
 import com.kwang.board.post.application.dto.PostSearchCond;
 import com.kwang.board.post.application.dto.PostUpdateDTO;
@@ -11,10 +13,12 @@ import com.kwang.board.post.usecase.PostCrudUseCase;
 import com.kwang.board.post.usecase.RecommendPostUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -23,6 +27,9 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
 
     private final PostRepository repository;
     private final PostQueryRepository queryRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final long RECOMMEND_EXPIRE_TIME = 24 * 60 * 60; // 24시간
 
     @Override
     @Transactional
@@ -60,20 +67,68 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
 
     @Override
     @Transactional
-    public void recommendPost(Long postId) {
+    public void recommendPost(Long postId, Long userId, String sessionId) {
+        String recommendKey = userId != null ?
+                getRecommendKey(postId, "user" + userId) :
+                getRecommendKey(postId, sessionId);
+
+        String notRecommendKey = userId != null ?
+                getNotRecommendKey(postId, "user" + userId) :
+                getNotRecommendKey(postId, sessionId);
+
+        // 이미 추천했는지 확인
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(recommendKey))) {
+            throw new AlreadyRecommendedException("이미 추천한 게시글입니다.");
+        }
+
+        // 비추천 여부 확인
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(notRecommendKey))) {
+            throw new AlreadyNotRecommendedException("이미 비추천한 게시글입니다.");
+        }
+
         Post post = repository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        int recommendCount = post.recommendPost();
+        post.recommendPost();
+
+        // Redis에 추천 이력 저장
+        redisTemplate.opsForValue().set(recommendKey, "true", RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
     }
 
     @Override
     @Transactional
-    public void notRecommendPost(Long postId) {
+    public void notRecommendPost(Long postId, Long userId, String sessionId) {
+        String recommendKey = userId != null ?
+                getRecommendKey(postId, "user" + userId) :
+                getRecommendKey(postId, sessionId);
+
+        String notRecommendKey = userId != null ?
+                getNotRecommendKey(postId, "user" + userId) :
+                getNotRecommendKey(postId, sessionId);
+
+        // 이미 추천했는지 확인
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(recommendKey))) {
+            throw new AlreadyRecommendedException("이미 추천한 게시글입니다.");
+        }
+
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(notRecommendKey))) {
+            throw new AlreadyNotRecommendedException("이미 비추천한 게시글입니다.");
+        }
+
         Post post = repository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        int notRecommendCount = post.notRecommendPost();
+        post.notRecommendPost();
+        redisTemplate.opsForValue().set(notRecommendKey, "true", RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
+    }
+
+    private String getRecommendKey(Long postId, String id) {
+        return String.format("recommend:%s:%d", id, postId);
+    }
+
+    private String getNotRecommendKey(Long postId, String id) {
+        return String.format("notRecommend:%s:%d", id, postId);
     }
 
     @Override

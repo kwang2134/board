@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface RecommendPostUseCase {
 
-    void recommendPost(Long postId);
+    void recommendPost(Long postId, Long userId, String sessionId);
 
-    void notRecommendPost(Long postId);
+    void notRecommendPost(Long postId, Long userId, String sessionId);
 
     List<Post> viewPopularPosts();
 }

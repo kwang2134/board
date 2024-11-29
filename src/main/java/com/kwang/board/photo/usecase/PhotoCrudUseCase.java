@@ -6,9 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface PhotoCrudUseCase {
-    String tempUploadPhoto(MultipartFile file);
+    String tempUploadPhoto(MultipartFile file, String sessionId);
 
-    List<Photo> uploadPhoto(List<MultipartFile> photos, Long postId);
+    List<Photo> uploadPhoto(List<MultipartFile> photos, Long postId, String sessionId);
 
     void deletePhoto(Long photoId);
 

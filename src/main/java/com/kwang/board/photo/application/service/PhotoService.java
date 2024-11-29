@@ -15,9 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +25,11 @@ public class PhotoService implements PhotoCrudUseCase {
     private final PhotoRepository repository;
     private final PostRepository postRepository;
 
-    private static final String UPLOAD_PATH = "D:\\project\\images\\";
+//    private static final String UPLOAD_PATH = "D:\\project\\images\\";
+    private String UPLOAD_PATH = "D:\\project\\images\\";
     private static final String TEMP_PREFIX = "temp_";
+
+    private final Map<String, Set<String>> tempFileMap = new ConcurrentHashMap<>();
 
     /**
      * 실행 순서
@@ -36,16 +38,16 @@ public class PhotoService implements PhotoCrudUseCase {
      */
 
     @Override
-    @Transactional
-    public String tempUploadPhoto(MultipartFile file) {
+    public String tempUploadPhoto(MultipartFile file, String sessionId) {
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String tempFileName = TEMP_PREFIX + UUID.randomUUID() + extension;
+        String tempFileName = TEMP_PREFIX + UUID.randomUUID() + getExtension(originalFilename);
 
         try {
             File savedFile = new File(UPLOAD_PATH + tempFileName);
             file.transferTo(savedFile);
-            return "/images/" + tempFileName;  // 웹에서 접근 가능한 URL 반환
+            // 임시 파일명과 원본 파일명 매핑 저장
+            tempFileMap.computeIfAbsent(sessionId, k -> new HashSet<>()).add(tempFileName);
+            return "/images/" + tempFileName;
         } catch (IOException e) {
             throw new FileUploadException("Failed to upload temp file: " + originalFilename);
         }
@@ -53,45 +55,67 @@ public class PhotoService implements PhotoCrudUseCase {
 
     @Override
     @Transactional
-    public List<Photo> uploadPhoto(List<MultipartFile> photos, Long postId) {
+    public List<Photo> uploadPhoto(List<MultipartFile> photos, Long postId, String sessionId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         List<Photo> savedPhotos = new ArrayList<>();
+        Map<String, String> pathMap = new HashMap<>();
+        String content = post.getContent();
 
-        for (int i = 0; i < photos.size(); i++) {
-            MultipartFile file = photos.get(i);
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        // 본문에서 임시 파일명들 추출
+        Set<String> tempFileNames = tempFileMap.get(sessionId);
+        if (tempFileNames != null) {
+            for (String tempFileName : tempFileNames) {
+                if (content.contains(tempFileName)) {
+                    String newFileName = String.format("%d_%s%s",
+                            postId, UUID.randomUUID(), getExtension(tempFileName));
 
-            // temp_ 로 시작하는 임시 파일을 정식 파일로 변환
-            String savedFileName = String.format("%d_%d_%s%s",
-                    postId, (i + 1), UUID.randomUUID(), extension);
+                    try {
+                        // 1. 임시 파일을 정식 파일로 이동
+                        File tempFile = new File(UPLOAD_PATH + tempFileName);
+                        File newFile = new File(UPLOAD_PATH + newFileName);
+                        if (tempFile.exists()) {
+                            tempFile.renameTo(newFile);
+                        }
 
-            try {
-                // 임시 파일을 정식 파일로 이동
-                File tempFile = new File(UPLOAD_PATH + TEMP_PREFIX + originalFilename);
-                File newFile = new File(UPLOAD_PATH + savedFileName);
-                if (tempFile.exists()) {
-                    tempFile.renameTo(newFile);
-                } else {
-                    file.transferTo(newFile);
+                        // 2. Photo 엔티티 생성 및 저장
+                        Photo photo = Photo.builder()
+                                .post(post)
+                                .originalPhotoName(tempFileName)
+                                .savedPhotoName(newFileName)
+                                .photoPath("/images/" + newFileName)
+                                .build();
+
+                        savedPhotos.add(repository.save(photo));
+
+                        // 3. 경로 매핑 저장
+                        pathMap.put("/images/" + tempFileName, "/images/" + newFileName);
+
+                    } catch (Exception e) {
+                        throw new FileUploadException("Failed to process file: " + tempFileName);
+                    }
                 }
-
-                Photo photo = Photo.builder()
-                        .post(post)
-                        .originalPhotoName(originalFilename)
-                        .savedPhotoName(savedFileName)
-                        .photoPath("/images/" + savedFileName)  // 웹 접근 경로로 저장
-                        .build();
-
-                savedPhotos.add(repository.save(photo));
-            } catch (IOException e) {
-                throw new FileUploadException("Failed to save file: " + originalFilename);
             }
         }
 
+        // 4. 본문의 이미지 경로 업데이트
+        for (Map.Entry<String, String> entry : pathMap.entrySet()) {
+            content = content.replace(entry.getKey(), entry.getValue());
+        }
+        post.updateContent(content);
+
+        // 5. 처리된 임시 파일 정보 삭제
+        tempFileMap.remove(sessionId);
+
         return savedPhotos;
+    }
+
+    private String getExtension(String originalFilename) {
+        if (originalFilename == null || originalFilename.lastIndexOf(".") == -1) {
+            throw new IllegalArgumentException("Invalid file name: " + originalFilename);
+        }
+        return originalFilename.substring(originalFilename.lastIndexOf("."));
     }
 
     @Override
