@@ -13,6 +13,8 @@ import com.kwang.board.post.usecase.PostCrudUseCase;
 import com.kwang.board.post.usecase.RecommendPostUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,6 +158,12 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         post.changeTypeNotice();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Post> viewUserPosts(Long userId, Pageable pageable) {
+        return repository.findByUserIdOrderByIdDesc(userId, pageable);
     }
 
     @Override

@@ -1,11 +1,8 @@
 package com.kwang.board.user.application.dto;
 
-import com.kwang.board.post.application.dto.PostDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-
-import java.util.List;
 
 public class UserDTO {
 
@@ -26,7 +23,6 @@ public class UserDTO {
         private final String username;
         private final String email;
         private final String role;
-        private final List<PostDTO.UserInfoResponse> posts;
     }
 
 }

@@ -32,18 +32,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PhotoServiceTest {
 
-    public static final String SESSION_ID = "user";
     @Mock
-    private PhotoRepository photoRepository;
+    PhotoRepository photoRepository;
     @Mock
-    private PostRepository postRepository;
+    PostRepository postRepository;
     @Mock
-    private MultipartFile multipartFile;
+    MultipartFile multipartFile;
+    @Mock
+    MultipartFile multipartFile2;
 
     @InjectMocks
-    private PhotoService service;
+    PhotoService service;
 
-    private static final String TEST_UPLOAD_PATH = "src/test/resources/test-uploads/";
+    static final String SESSION_ID = "user";
+    static final String ORIGINAL_FILE_NAME = "test.jpg";
+    static final String ORIGINAL_FILE_NAME2 = "test2.jpg";
+    static final String TEST_UPLOAD_PATH = "src/test/resources/test-uploads/";
 
     @BeforeEach
     void setUp() {
@@ -63,8 +67,7 @@ class PhotoServiceTest {
     @Test
     void tempUploadPhoto_Success() throws IOException {
         // given
-        String originalFileName = "test.jpg";
-        when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
+        when(multipartFile.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME);
 
         // transferTo 메서드 동작 정의 추가
         doAnswer(invocation -> {
@@ -110,8 +113,8 @@ class PhotoServiceTest {
     @Test
     void uploadPhoto_Success() throws IOException {
         // given
-        String originalFileName = "test.jpg";
-        when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
+        when(multipartFile.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME);
+        when(multipartFile2.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME2);
 
         doAnswer(invocation -> {
             File file = invocation.getArgument(0);
@@ -119,13 +122,25 @@ class PhotoServiceTest {
             return null;
         }).when(multipartFile).transferTo(any(File.class));
 
+        doAnswer(invocation -> {
+            File file = invocation.getArgument(0);
+            new FileOutputStream(file).close();
+            return null;
+        }).when(multipartFile2).transferTo(any(File.class));
+
         //임시 파일 생성
         String tempFilePath = service.tempUploadPhoto(multipartFile, SESSION_ID);
         File tempFile = new File(tempFilePath);
 
+        String tempFilePath2 = service.tempUploadPhoto(multipartFile2, SESSION_ID);
+        File tempFile2 = new File(tempFilePath2);
+
         //임시 파일 주소로 post 생성
         Long postId = 1L;
-        String con = "게시글 본문 내용 중 이미지가 포함되는 형식<img src='" + tempFilePath + "'>이미지가 가운데 포함되어 있음";
+        String con = "게시글 본문 내용 중 이미지가 포함되는 형식<img src='"
+                + tempFilePath + "'>이미지가 가운데 포함되어 있음"
+                + "<img src='" + tempFilePath2 + "'>두 번째 이미지가 포함됨";
+
         Post post = Post.builder()
                 .id(postId)
                 .content(con)
@@ -136,16 +151,19 @@ class PhotoServiceTest {
         when(photoRepository.save(any(Photo.class))).thenAnswer(i -> i.getArgument(0));
 
         // when
-        List<Photo> photos = service.uploadPhoto(List.of(multipartFile), postId , SESSION_ID);
+        List<Photo> photos = service.uploadPhoto(List.of(multipartFile, multipartFile2), postId , SESSION_ID);
 
         // then
         // 1. 임시 파일이 정식 파일로 변환되었는지 확인
         assertThat(tempFile).doesNotExist();
-        assertThat(photos).hasSize(1);
+        assertThat(tempFile2).doesNotExist();
+        assertThat(photos).hasSize(2);
 
         // 2. 본문의 이미지 경로가 업데이트되었는지 확인
         assertThat(post.getContent()).doesNotContain(tempFilePath.substring(8));
         assertThat(post.getContent()).contains(photos.get(0).getSavedPhotoName());
+        assertThat(post.getContent()).doesNotContain(tempFilePath2.substring(8));
+        assertThat(post.getContent()).contains(photos.get(1).getSavedPhotoName());
 
         // 3. tempFileMap에서 해당 postId 정보가 삭제되었는지 확인
         Map<String, Set<String>> tempFileMap = (Map<String, Set<String>>) ReflectionTestUtils.getField(service, "tempFileMap");

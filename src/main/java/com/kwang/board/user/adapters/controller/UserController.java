@@ -1,5 +1,6 @@
 package com.kwang.board.user.adapters.controller;
 
+import com.kwang.board.post.adapters.mapper.PostMapper;
 import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.user.adapters.mapper.UserMapper;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
@@ -15,18 +16,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/users")
+@RequestMapping("/users/manage")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final PostService postService;
-    private final UserMapper mapper;
+
+    private final UserMapper userMapper;
+    private final PostMapper postMapper;
 
     //회원 가입
     @PostMapping("/signup")
-    public String signupUser(@Valid @ModelAttribute UserDTO.Request userDTO) {
-        User user = userService.signupUser(mapper.toEntity(userDTO));
+    public String signupUser(@Valid @ModelAttribute UserDTO.Request userRequest) {
+        User user = userService.signupUser(userMapper.toEntity(userRequest));
         return "redirect:/";
     }
 
@@ -35,9 +38,8 @@ public class UserController {
     @PostMapping("/mypage")
     public String updateUser(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @ModelAttribute UserDTO.Request userDTO) {
-        Long userId = userDetails.getId();
-        userService.updateUser(userId, mapper.toUpdateDTO(userDTO));
+            @Valid @ModelAttribute UserDTO.Request userRequest) {
+        userService.updateUser(userDetails.getId(), userMapper.toUpdateDTO(userRequest));
         return "redirect:/users/mypage";  // 마이페이지로 리다이렉트
     }
 }

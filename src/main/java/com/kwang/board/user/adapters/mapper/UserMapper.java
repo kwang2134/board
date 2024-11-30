@@ -1,6 +1,5 @@
 package com.kwang.board.user.adapters.mapper;
 
-import com.kwang.board.post.application.dto.PostDTO;
 import com.kwang.board.user.application.dto.UserDTO;
 import com.kwang.board.user.application.dto.UserUpdateDTO;
 import com.kwang.board.user.domain.model.User;
@@ -8,22 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserDTO.Response toDTO(User user, List<PostDTO.UserInfoResponse> posts) {
+    public UserDTO.Response toDTO(User user) {
         return new UserDTO.Response(
                 user.getId(),
                 user.getLoginId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole().getValue(),
-                posts
+                user.getRole().getValue()
                 );
     }
 
