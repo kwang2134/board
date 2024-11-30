@@ -99,11 +99,11 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
     @Transactional
     public void notRecommendPost(Long postId, Long userId, String sessionId) {
         String recommendKey = userId != null ?
-                getRecommendKey(postId, "user" + userId) :
+                getRecommendKey(postId, String.valueOf(userId)) :
                 getRecommendKey(postId, sessionId);
 
         String notRecommendKey = userId != null ?
-                getNotRecommendKey(postId, "user" + userId) :
+                getNotRecommendKey(postId, String.valueOf(userId)) :
                 getNotRecommendKey(postId, sessionId);
 
         // 이미 추천했는지 확인

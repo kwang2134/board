@@ -41,7 +41,7 @@ public class UserService implements UserCrudUseCase, LoginUseCase {
     @Override
     @Transactional(readOnly = true)
     public User viewUserInfo(Long userId) {
-        return repository.findById(userId)
+        return repository.findUserWithPostsById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
