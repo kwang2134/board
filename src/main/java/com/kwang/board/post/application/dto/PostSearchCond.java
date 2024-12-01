@@ -6,5 +6,5 @@ import lombok.Data;
 public class PostSearchCond {
     private String title;
     private String content;
-    private String authorName;
+    private String author;
 }

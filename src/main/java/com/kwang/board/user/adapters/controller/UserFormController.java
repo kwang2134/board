@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/users")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserFormController {
 
@@ -33,13 +33,13 @@ public class UserFormController {
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("userRequest", new UserDTO.Request());
-        return "users/signupForm";  // templates/users/signupForm.html
+        return "user/signupForm";  // templates/users/signupForm.html
     }
 
     //로그인 -> SpringSecurity 처리
     @GetMapping("/login")
     public String loginForm() {
-        return "users/loginForm";  // templates/users/loginForm.html
+        return "user/loginForm";  // templates/users/loginForm.html
     }
 
     //마이페이지
@@ -71,7 +71,7 @@ public class UserFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
-        return "users/myPage";
+        return "user/myPage";
     }
 
     // posts 탭 페이징 처리
@@ -96,6 +96,6 @@ public class UserFormController {
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
 
-        return "users/myPage :: #postsFragment";  // posts 탭의 프래그먼트만 반환
+        return "user/myPage :: #postsFragment";  // posts 탭의 프래그먼트만 반환
     }
 }

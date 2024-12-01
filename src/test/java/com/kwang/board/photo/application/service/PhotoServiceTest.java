@@ -151,7 +151,7 @@ class PhotoServiceTest {
         when(photoRepository.save(any(Photo.class))).thenAnswer(i -> i.getArgument(0));
 
         // when
-        List<Photo> photos = service.uploadPhoto(List.of(multipartFile, multipartFile2), postId , SESSION_ID);
+        List<Photo> photos = service.uploadPhoto(postId , SESSION_ID);
 
         // then
         // 1. 임시 파일이 정식 파일로 변환되었는지 확인
@@ -181,7 +181,7 @@ class PhotoServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                service.uploadPhoto(List.of(multipartFile), 1L, SESSION_ID))
+                service.uploadPhoto(1L, SESSION_ID))
                 .isInstanceOf(PostNotFoundException.class);
     }
 
@@ -192,7 +192,7 @@ class PhotoServiceTest {
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
 
         // when
-        List<Photo> photos = service.uploadPhoto(List.of(multipartFile), 1L, SESSION_ID);
+        List<Photo> photos = service.uploadPhoto(1L, SESSION_ID);
 
         // then
         assertThat(photos).isEmpty();

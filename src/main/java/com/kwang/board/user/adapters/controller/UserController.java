@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/users/manage")
+@RequestMapping("/manage/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -33,13 +33,12 @@ public class UserController {
         return "redirect:/";
     }
 
-
     //정보 수정
     @PostMapping("/mypage")
     public String updateUser(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute UserDTO.Request userRequest) {
         userService.updateUser(userDetails.getId(), userMapper.toUpdateDTO(userRequest));
-        return "redirect:/users/mypage";  // 마이페이지로 리다이렉트
+        return "redirect:/user/mypage";  // 마이페이지로 리다이렉트
     }
 }

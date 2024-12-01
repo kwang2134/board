@@ -6,10 +6,8 @@ import com.kwang.board.post.domain.model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface PostCrudUseCase {
-    Post createPost(Post post);
+    Post createPost(Post post, Long userId);
 
     Post updatePost(Long postId, PostUpdateDTO dto);
 
@@ -17,7 +15,7 @@ public interface PostCrudUseCase {
 
     Post viewPost(Long postId);
 
-    List<Post> searchPosts(PostSearchCond searchCond);
+    Page<Post> searchPosts(PostSearchCond searchCond, Pageable pageable);
 
     void changeToPopular(Long postId);
 
@@ -26,4 +24,12 @@ public interface PostCrudUseCase {
     void changeToNotice(Long postId);
 
     Page<Post> viewUserPosts(Long userId, Pageable pageable);
+
+    Page<Post> viewNormalPosts(Pageable pageable);
+
+    Page<Post> viewNoticePosts(Pageable pageable);
+
+    Page<Post> viewPopularPosts(Pageable pageable);
+
+    boolean checkNonUserPost(Long postId, String password);
 }

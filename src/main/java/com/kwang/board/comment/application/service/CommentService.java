@@ -25,12 +25,12 @@ public class CommentService implements CommentCrudUseCase {
     public Comment createComt(Comment comt, Long parentId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
-        comt.setPost(post);
+        comt.connectPost(post);
 
         if (parentId != null) {
             Comment parentComment = repository.findById(parentId)
                     .orElseThrow(() -> new CommentNotFoundException(parentId));
-            comt.setParentComment(parentComment);
+            comt.connectParent(parentComment);
         }
         return repository.save(comt);
     }

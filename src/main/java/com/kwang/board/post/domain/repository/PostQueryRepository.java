@@ -2,9 +2,9 @@ package com.kwang.board.post.domain.repository;
 
 import com.kwang.board.post.application.dto.PostSearchCond;
 import com.kwang.board.post.domain.model.Post;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PostQueryRepository {
-    List<Post> searchPosts(PostSearchCond searchCond);
+    Page<Post> searchPosts(PostSearchCond searchCond, Pageable pageable);
 }

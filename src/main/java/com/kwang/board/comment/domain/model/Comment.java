@@ -58,11 +58,11 @@ public class Comment extends BaseEntity {
         this.content = dto.getContent();
     }
 
-    public void setParentComment(Comment parentComment) {
+    public void connectParent(Comment parentComment) {
         this.parentComment = parentComment;
     }
 
-    public void setPost(Post post) {
+    public void connectPost(Post post) {
         this.post = post;
     }
 }

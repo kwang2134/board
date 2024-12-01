@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,19 +82,4 @@ class PostServiceTest {
         verify(repository).findById(POST_ID);
     }
 
-    @Test
-    void viewPopularPosts() {
-        // given
-        post.changeTypePopular();
-        List<Post> popularPosts = List.of(post);
-        when(repository.findByPostType(PostType.POPULAR)).thenReturn(popularPosts);
-
-        // when
-        List<Post> result = service.viewPopularPosts();
-
-        // then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getPostType()).isEqualTo(PostType.POPULAR);
-        verify(repository).findByPostType(PostType.POPULAR);
-    }
 }

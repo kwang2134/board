@@ -55,7 +55,7 @@ public class PhotoService implements PhotoCrudUseCase {
 
     @Override
     @Transactional
-    public List<Photo> uploadPhoto(List<MultipartFile> photos, Long postId, String sessionId) {
+    public List<Photo> uploadPhoto(Long postId, String sessionId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
