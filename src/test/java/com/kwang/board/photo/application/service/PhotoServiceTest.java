@@ -40,13 +40,18 @@ class PhotoServiceTest {
     MultipartFile multipartFile;
     @Mock
     MultipartFile multipartFile2;
+    @Mock
+    MultipartFile multipartFile3;
 
     @InjectMocks
     PhotoService service;
 
     static final String SESSION_ID = "user";
+    static final String SESSION_ID2 = "user2";
+    static final String SESSION_ID3 = "user3";
     static final String ORIGINAL_FILE_NAME = "test.jpg";
     static final String ORIGINAL_FILE_NAME2 = "test2.jpg";
+    static final String ORIGINAL_FILE_NAME3 = "test3.jpg";
     static final String TEST_UPLOAD_PATH = "src/test/resources/test-uploads/";
 
     @BeforeEach
@@ -196,6 +201,101 @@ class PhotoServiceTest {
 
         // then
         assertThat(photos).isEmpty();
+    }
+
+    @Test
+    void updatePhoto_Success() throws IOException {
+        // given
+        // 초기 파일 설정
+        when(multipartFile.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME);
+        when(multipartFile2.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME2);
+        when(multipartFile3.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME3);
+
+        // 파일 전송 모킹
+        doAnswer(invocation -> {
+            File file = invocation.getArgument(0);
+            new FileOutputStream(file).close();
+            return null;
+        }).when(multipartFile).transferTo(any(File.class));
+
+        doAnswer(invocation -> {
+            File file = invocation.getArgument(0);
+            new FileOutputStream(file).close();
+            return null;
+        }).when(multipartFile2).transferTo(any(File.class));
+
+        doAnswer(invocation -> {
+            File file = invocation.getArgument(0);
+            new FileOutputStream(file).close();
+            return null;
+        }).when(multipartFile3).transferTo(any(File.class));
+
+        // 초기 게시글 생성
+        String tempFilePath1 = service.tempUploadPhoto(multipartFile, SESSION_ID);
+        String tempFilePath2 = service.tempUploadPhoto(multipartFile2, SESSION_ID);
+
+        Long postId = 1L;
+        String content = "게시글 본문 내용<img src='" + tempFilePath1 + "'>" +
+                "중간 내용<img src='" + tempFilePath2 + "'>끝";
+
+        Post post = Post.builder()
+                .id(postId)
+                .content(content)
+                .build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(photoRepository.save(any(Photo.class))).thenAnswer(i -> i.getArgument(0));
+
+        // 초기 업로드
+        List<Photo> initialPhotos = service.uploadPhoto(postId, SESSION_ID);
+        String firstResult = post.getContent();
+        when(photoRepository.findByPostId(postId)).thenReturn(initialPhotos);
+
+        // 새로운 이미지 추가 수정
+        String tempFilePath3 = service.tempUploadPhoto(multipartFile3, SESSION_ID2);
+        String updatedContent = post.getContent() + "<img src='" + tempFilePath3 + "'>";
+        post.updateContent(updatedContent);
+
+        // when - 첫 번째 수정
+        List<Photo> updatedPhotos = service.updatePhoto(postId, SESSION_ID2);
+        String secondResult = post.getContent();
+
+        // then - 첫 번째 수정 결과 확인
+        assertThat(updatedPhotos).hasSize(1);
+        assertThat(initialPhotos).hasSize(2);
+        assertThat(post.getContent()).contains(updatedPhotos.get(0).getSavedPhotoName());
+        assertThat(post.getContent()).contains(initialPhotos.get(0).getSavedPhotoName());
+        assertThat(post.getContent()).contains(initialPhotos.get(1).getSavedPhotoName());
+
+        // when - 두 번째 수정 (이미지 2개 삭제)
+        String contentWithRemovedImages = post.getContent()
+                .replace("<img src='/images/" + updatedPhotos.get(0).getSavedPhotoName() + "'>", "")
+                .replace("<img src='/images/" + initialPhotos.get(0).getSavedPhotoName() + "'>", "");
+        post.updateContent(contentWithRemovedImages);
+
+        List<Photo> updatedList = new ArrayList<>(initialPhotos);
+        updatedList.add(updatedPhotos.get(0));
+        when(photoRepository.findByPostId(postId)).thenReturn(updatedList);
+        List<Photo> finalPhotos = service.updatePhoto(postId, SESSION_ID3);
+        String lastResult = post.getContent();
+
+        // then - 최종 결과 확인
+        assertThat(finalPhotos).hasSize(0);
+        assertThat(post.getContent()).doesNotContain(updatedPhotos.get(0).getSavedPhotoName());
+        assertThat(post.getContent()).doesNotContain(initialPhotos.get(0).getSavedPhotoName());
+        assertThat(post.getContent()).contains(initialPhotos.get(1).getSavedPhotoName());
+
+        // tempFileMap 확인
+        Map<String, Set<String>> tempFileMap = (Map<String, Set<String>>)
+                ReflectionTestUtils.getField(service, "tempFileMap");
+        assertThat(tempFileMap).doesNotContainKey(SESSION_ID);
+        assertThat(tempFileMap).doesNotContainKey(SESSION_ID2);
+        assertThat(tempFileMap).doesNotContainKey(SESSION_ID3);
+
+        // 직접 확인
+        log.info("Initial content = {}", firstResult);
+        log.info("Updated content = {}", secondResult);
+        log.info("Final content = {}", lastResult);
     }
 
     @Test

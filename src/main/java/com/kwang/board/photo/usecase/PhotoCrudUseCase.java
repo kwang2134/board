@@ -10,6 +10,8 @@ public interface PhotoCrudUseCase {
 
     List<Photo> uploadPhoto(Long postId, String sessionId);
 
+    List<Photo> updatePhoto(Long postId, String sessionId);
+
     void deletePhoto(Long photoId);
 
     List<Photo> viewPhotos(Long postId);

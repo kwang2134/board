@@ -111,6 +111,77 @@ public class PhotoService implements PhotoCrudUseCase {
         return savedPhotos;
     }
 
+    @Override
+    @Transactional
+    public List<Photo> updatePhoto(Long postId, String sessionId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        List<Photo> savedPhotos = new ArrayList<>();
+        Map<String, String> pathMap = new HashMap<>();
+        String content = post.getContent();
+
+        // 1. 기존 사진들 중 본문에서 제거된 사진 삭제
+        List<Photo> existingPhotos = repository.findByPostId(postId);
+        for (Photo photo : existingPhotos) {
+            if (!content.contains(photo.getPhotoPath())) {
+                // 파일 시스템에서 삭제
+                File fileToDelete = new File(UPLOAD_PATH + photo.getSavedPhotoName());
+                if (fileToDelete.exists()) {
+                    fileToDelete.delete();
+                }
+                // DB에서 삭제
+                repository.delete(photo);
+            }
+        }
+
+        // 2. 새로 추가된 임시 파일 처리
+        Set<String> tempFileNames = tempFileMap.get(sessionId);
+        if (tempFileNames != null) {
+            for (String tempFileName : tempFileNames) {
+                if (content.contains(tempFileName)) {
+                    String newFileName = String.format("%d_%s%s",
+                            postId, UUID.randomUUID(), getExtension(tempFileName));
+
+                    try {
+                        // 임시 파일을 정식 파일로 이동
+                        File tempFile = new File(UPLOAD_PATH + tempFileName);
+                        File newFile = new File(UPLOAD_PATH + newFileName);
+                        if (tempFile.exists()) {
+                            tempFile.renameTo(newFile);
+                        }
+
+                        // Photo 엔티티 생성 및 저장
+                        Photo photo = Photo.builder()
+                                .post(post)
+                                .originalPhotoName(tempFileName)
+                                .savedPhotoName(newFileName)
+                                .photoPath("/images/" + newFileName)
+                                .build();
+
+                        savedPhotos.add(repository.save(photo));
+                        pathMap.put("/images/" + tempFileName, "/images/" + newFileName);
+
+                    } catch (Exception e) {
+                        throw new FileUploadException("Failed to process file: " + tempFileName);
+                    }
+                }
+            }
+        }
+
+        // 3. 본문의 이미지 경로 업데이트
+        for (Map.Entry<String, String> entry : pathMap.entrySet()) {
+            content = content.replace(entry.getKey(), entry.getValue());
+        }
+        post.updateContent(content);
+
+        // 4. 처리된 임시 파일 정보 삭제
+        tempFileMap.remove(sessionId);
+
+        return savedPhotos;
+    }
+
+
     private String getExtension(String originalFilename) {
         if (originalFilename == null || originalFilename.lastIndexOf(".") == -1) {
             throw new IllegalArgumentException("Invalid file name: " + originalFilename);

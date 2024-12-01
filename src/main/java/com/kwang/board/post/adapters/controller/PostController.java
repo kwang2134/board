@@ -50,7 +50,7 @@ public class PostController {
                              @PathVariable("id") Long postId, HttpSession session) {
 
         postService.updatePost(postId, postMapper.toUpdateDTO(request));
-        photoService.uploadPhoto(postId, session.getId());
+        photoService.updatePhoto(postId, session.getId());
 
         return "redirect:/post/" + postId;
     }

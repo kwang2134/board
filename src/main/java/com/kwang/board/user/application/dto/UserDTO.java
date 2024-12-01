@@ -3,10 +3,13 @@ package com.kwang.board.user.application.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class UserDTO {
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Request {
         private Long id;
         private String loginId;

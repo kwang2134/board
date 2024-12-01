@@ -48,6 +48,7 @@ public class UserFormController {
                          @PageableDefault(size = 8) Pageable pageable) {
 
         User user = userService.viewUserInfo(userDetails.getId());
+        UserDTO.Request requestDTO = userMapper.toRequestDTO(user);
         Page<Post> posts = postService.viewUserPosts(userDetails.getId(), pageable);
 
         // 현재 페이지 (0부터 시작하므로 1을 더함)
@@ -62,8 +63,8 @@ public class UserFormController {
         // 시작 페이지 재조정 (끝 페이지가 최대값보다 작은 경우)
         startPage = Math.max(1, endPage - 8);
 
-        model.addAttribute("user", userMapper.toDTO(user));         //유저 정보를 반환할 Response DTO
-        model.addAttribute("userRequest", new UserDTO.Request());   //유저 정보 수정을 담을 Request DTO
+        model.addAttribute("user", userMapper.toDTO(user));  //유저 정보를 반환할 Response DTO
+        model.addAttribute("userRequest", requestDTO);       //유저 정보 수정을 담을 Request DTO
         model.addAttribute("posts", postMapper.toUserInfoResponse(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("startPage", startPage);

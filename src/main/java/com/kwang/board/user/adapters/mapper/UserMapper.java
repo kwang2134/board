@@ -39,4 +39,8 @@ public class UserMapper {
                 .email(dto.getEmail())
                 .build();
     }
+
+    public UserDTO.Request toRequestDTO(User user) {
+        return new UserDTO.Request(null, null, user.getPassword(), user.getUsername(), user.getEmail());
+    }
 }
