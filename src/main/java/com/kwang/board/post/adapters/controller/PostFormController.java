@@ -1,5 +1,9 @@
 package com.kwang.board.post.adapters.controller;
 
+import com.kwang.board.comment.adapters.mapper.CommentMapper;
+import com.kwang.board.comment.application.dto.CommentDTO;
+import com.kwang.board.comment.application.service.CommentService;
+import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.post.adapters.mapper.PostMapper;
 import com.kwang.board.post.application.dto.PostDTO;
@@ -15,7 +19,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/")
@@ -23,7 +30,10 @@ import org.springframework.web.bind.annotation.*;
 public class PostFormController {
 
     private final PostService postService;
+    private final CommentService commentService;
+
     private final PostMapper postMapper;
+    private final CommentMapper commentMapper;
 
     // 인덱스 페이지 (일반 게시글 목록)
     @GetMapping
@@ -182,6 +192,48 @@ public class PostFormController {
         }
         model.addAttribute("request", request);
         return "post/write";
+    }
+
+    // 게시글 조회
+    @GetMapping("/post/{id}")
+    public String viewPost(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           @PathVariable("id") Long postId,
+                           @PageableDefault(size = 15) Pageable pageable, Model model) {
+        // 게시글 조회
+        Post post = postService.viewPost(postId);
+
+        // 댓글 작성용 객체
+        CommentDTO.Request commentRequest = new CommentDTO.Request();
+        if (userDetails != null) {
+            // 로그인 상태면 작성자명 미리 설정
+            commentRequest.setDisplayName(userDetails.getDisplayName());
+        }
+
+        // 해당 게시글의 댓글 조회
+        Page<Comment> comments = commentService.viewComts(postId, pageable);
+        // 페이지네이션 계산
+        int currentPage = comments.getNumber() + 1;
+        int totalPages = comments.getTotalPages();
+        int pageGroup = (currentPage - 1) / 9;
+        int startPage = pageGroup * 9 + 1;
+        int endPage = Math.min(startPage + 8, totalPages);
+
+        // 게시글 정보
+        model.addAttribute("post", postMapper.toResponseDTO(post));
+
+        // 댓글 관련 데이터
+        model.addAttribute("comments", commentMapper.toResponseListDTO(comments.getContent()));
+        model.addAttribute("commentRequest", commentRequest);  // 작성용
+
+        // 페이지네이션 정보
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("hasNext", comments.hasNext());
+        model.addAttribute("hasPrev", comments.hasPrevious());
+
+        return "post/view";
     }
 
     @GetMapping("/post/{id}/edit")

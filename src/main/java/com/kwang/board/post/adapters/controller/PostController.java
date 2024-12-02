@@ -1,5 +1,6 @@
 package com.kwang.board.post.adapters.controller;
 
+import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.photo.application.service.PhotoService;
 import com.kwang.board.post.adapters.mapper.PostMapper;
 import com.kwang.board.post.application.dto.PostDTO;
@@ -11,10 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/manage/post")
@@ -31,15 +29,8 @@ public class PostController {
                              @Valid @ModelAttribute PostDTO.Request request,
                              HttpSession session) {
 
-        Post createdPost;
-
-        if (userDetails != null) {
-            // 회원 게시글
-            createdPost = postService.createPost(postMapper.toEntity(request), userDetails.getId());
-        } else {
-            // 비회원 게시글
-            createdPost= postService.createPost(postMapper.toEntity(request), null);
-        }
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        Post createdPost = postService.createPost(postMapper.toEntity(request), userId);
 
         photoService.uploadPhoto(createdPost.getId(), session.getId());
         return "redirect:/";
@@ -53,5 +44,37 @@ public class PostController {
         photoService.updatePhoto(postId, session.getId());
 
         return "redirect:/post/" + postId;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deletePost(@AuthenticationPrincipal CustomUserDetails userDetails,
+                             @PathVariable("id") Long postId,
+                             @RequestParam(required = false) String password){
+        Post post = postService.viewPost(postId);
+
+        // 회원 게시글인 경우
+        if (post.getUser() != null) {
+            if (checkPermission(userDetails, post)) {
+                throw new UnauthorizedAccessException("게시글에 대한 삭제 권한이 없습니다.");
+            }
+        }
+
+        // 비회원 게시글인 경우
+        else {
+            if (checkPassword(postId, password)) {
+                throw new UnauthorizedAccessException("비밀번호가 일치하지 않습니다.");
+            }
+        }
+
+        postService.deletePost(postId);
+        return "redirect:/";
+    }
+
+    private boolean checkPassword(Long postId, String password) {
+        return password == null || !postService.checkNonUserPost(postId, password);
+    }
+
+    private boolean checkPermission(CustomUserDetails userDetails, Post post) {
+        return userDetails == null || !post.getUser().getId().equals(userDetails.getId());
     }
 }

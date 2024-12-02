@@ -5,38 +5,42 @@ import com.kwang.board.comment.application.dto.CommentUpdateDTO;
 import com.kwang.board.comment.domain.model.Comment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class CommentMapper {
 
-    public CommentDTO.Response toDTO(Comment comment, Long userId, Long postId, String displayName) {
-        return new CommentDTO.Response(
+    public List<CommentDTO.Response> toResponseListDTO(List<Comment> comments) {
+        return comments.stream().map(comment -> new CommentDTO.Response(
                 comment.getId(),
-                userId,
-                postId,
-                displayName,
+                comment.getUser().getId(),
+                comment.getDisplayName(),
                 comment.getContent(),
                 comment.isDeleted(),
                 comment.getCreatedAt().toString(),
-                comment.getUpdatedAt().toString());
+                comment.getUpdatedAt().toString())
+        ).toList();
     }
 
-    public CommentUpdateDTO toUpdateDTO(CommentDTO.UserRequest dto) {
+    public CommentDTO.Request toRequestDTO(Comment comment) {
+        return new CommentDTO.Request(
+                comment.getId(),
+                null,
+                comment.getDisplayName(),
+                comment.getPassword(),
+                comment.getContent()
+        );
+    }
+
+    public CommentUpdateDTO toUpdateDTO(CommentDTO.Request dto) {
         return new CommentUpdateDTO(dto.getContent());
     }
 
-    public CommentUpdateDTO toUpdateDTO(CommentDTO.NonUserRequest dto) {
-        return new CommentUpdateDTO(dto.getContent());
-    }
 
-    public Comment toEntity(CommentDTO.UserRequest dto) {
-        return Comment.builder()
-                .content(dto.getContent())
-                .build();
-    }
-
-    public Comment toEntity(CommentDTO.NonUserRequest dto) {
+    public Comment toEntity(CommentDTO.Request dto, Comment parent) {
         return Comment.builder()
                 .displayName(dto.getDisplayName())
+                .parentComment(parent)
                 .password(dto.getPassword())
                 .content(dto.getContent())
                 .build();

@@ -65,10 +65,6 @@ public class Post extends BaseEntity {
         }
     }
 
-    public void displayNameToUsername(String username) {
-        this.displayName = username;
-    }
-
     public int recommendPost() {
         this.recomCount++;
 

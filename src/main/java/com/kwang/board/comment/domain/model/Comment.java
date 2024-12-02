@@ -6,12 +6,14 @@ import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.domain.model.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@BatchSize(size = 15)
 @Table(name = "comments")
 @Getter
 @Builder
@@ -58,11 +60,19 @@ public class Comment extends BaseEntity {
         this.content = dto.getContent();
     }
 
+    public void changeStateToDelete() {
+        this.isDeleted = true;
+    }
+
     public void connectParent(Comment parentComment) {
         this.parentComment = parentComment;
     }
 
     public void connectPost(Post post) {
         this.post = post;
+    }
+
+    public void connectUser(User user) {
+        this.user = user;
     }
 }

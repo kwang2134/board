@@ -65,7 +65,7 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
     @Override
     @Transactional(readOnly = true)
     public Post viewPost(Long postId) {
-        return postRepository.findById(postId)
+        return postRepository.findByIdWithUser(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
     }
 
