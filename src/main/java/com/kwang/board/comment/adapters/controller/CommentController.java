@@ -80,7 +80,7 @@ public class CommentController {
         // 회원 댓글인 경우
         if (comment.getUser() != null) {
             if (checkPermission(userDetails, comment)) {
-                throw new UnauthorizedAccessException("댓글에 대한 수정 권한이 없습니다.");
+                throw new UnauthorizedAccessException("댓글에 대한 삭제 권한이 없습니다.");
             }
         }
 

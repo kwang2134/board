@@ -66,6 +66,7 @@ public class PostController {
             }
         }
 
+        photoService.deletePhoto(postId);
         postService.deletePost(postId);
         return "redirect:/";
     }

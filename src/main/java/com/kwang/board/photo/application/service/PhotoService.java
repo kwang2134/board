@@ -190,9 +190,14 @@ public class PhotoService implements PhotoCrudUseCase {
     }
 
     @Override
-    @Transactional
-    public void deletePhoto(Long photoId) {
-        repository.deleteById(photoId);
+    public void deletePhoto(Long postId) {
+        List<Photo> photos = repository.findByPostId(postId);
+        for (Photo photo : photos) {
+            File file = new File(UPLOAD_PATH + photo.getSavedPhotoName());
+            if (file.exists()) {
+                file.delete();
+            }
+        }
     }
 
     @Override

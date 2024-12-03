@@ -12,7 +12,7 @@ public interface PhotoCrudUseCase {
 
     List<Photo> updatePhoto(Long postId, String sessionId);
 
-    void deletePhoto(Long photoId);
+    void deletePhoto(Long postId);
 
     List<Photo> viewPhotos(Long postId);
 
