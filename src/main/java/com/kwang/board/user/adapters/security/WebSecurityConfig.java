@@ -16,15 +16,18 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/users/signup", "/users/login").permitAll()
-                        .requestMatchers("/posts", "/posts/{id}").permitAll()
+                        .requestMatchers("/", "/user/signup", "/user/login").permitAll()
+                        .requestMatchers("/manage/user/signup").permitAll()
+                        .requestMatchers("/manage/post/{postId}/comment/**", "/manage/post/**").permitAll()
+                        .requestMatchers("/posts/**", "/post/**").permitAll()
+                        .requestMatchers("/api/photos/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/users/login")
+                        .loginPage("/user/login")
                         .defaultSuccessUrl("/")
-                        .failureUrl("/users/login?error")
+                        .failureUrl("/user/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout

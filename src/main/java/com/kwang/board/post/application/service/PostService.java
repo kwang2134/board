@@ -78,13 +78,8 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
     @Override
     @Transactional
     public void recommendPost(Long postId, Long userId, String sessionId) {
-        String recommendKey = userId != null ?
-                getRecommendKey(postId, "user" + userId) :
-                getRecommendKey(postId, sessionId);
-
-        String notRecommendKey = userId != null ?
-                getNotRecommendKey(postId, "user" + userId) :
-                getNotRecommendKey(postId, sessionId);
+        String recommendKey = getRecommendKey(postId, getUserIdentifier(userId, sessionId));
+        String notRecommendKey = getNotRecommendKey(postId, getUserIdentifier(userId, sessionId));
 
         // 이미 추천했는지 확인
         if (Boolean.TRUE.equals(redisTemplate.hasKey(recommendKey))) {
@@ -108,19 +103,13 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
     @Override
     @Transactional
     public void notRecommendPost(Long postId, Long userId, String sessionId) {
-        String recommendKey = userId != null ?
-                getRecommendKey(postId, String.valueOf(userId)) :
-                getRecommendKey(postId, sessionId);
-
-        String notRecommendKey = userId != null ?
-                getNotRecommendKey(postId, String.valueOf(userId)) :
-                getNotRecommendKey(postId, sessionId);
+        String recommendKey = getRecommendKey(postId, getUserIdentifier(userId, sessionId));
+        String notRecommendKey = getNotRecommendKey(postId, getUserIdentifier(userId, sessionId));
 
         // 이미 추천했는지 확인
         if (Boolean.TRUE.equals(redisTemplate.hasKey(recommendKey))) {
             throw new AlreadyRecommendedException("이미 추천한 게시글입니다.");
         }
-
 
         if (Boolean.TRUE.equals(redisTemplate.hasKey(notRecommendKey))) {
             throw new AlreadyNotRecommendedException("이미 비추천한 게시글입니다.");
@@ -131,6 +120,10 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
 
         post.notRecommendPost();
         redisTemplate.opsForValue().set(notRecommendKey, "true", RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
+    }
+
+    private String getUserIdentifier(Long userId, String sessionId) {
+        return userId != null ? String.valueOf(userId) + userId : sessionId;
     }
 
     private String getRecommendKey(Long postId, String id) {

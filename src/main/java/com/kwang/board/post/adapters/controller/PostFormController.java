@@ -63,7 +63,7 @@ public class PostFormController {
     }
 
     // 탭 전환 시 게시글 목록 프래그먼트 반환
-    @GetMapping("/posts/tab")
+    @GetMapping("posts/tab")
     public String getPostsByType(@RequestParam PostType type,
                                  @PageableDefault(size = 10) Pageable pageable, Model model) {
         Page<Post> posts = switch (type) {
@@ -91,7 +91,7 @@ public class PostFormController {
     }
 
     // 페이지 전환 시 게시글 목록 프래그먼트 반환
-    @GetMapping("/posts/page")
+    @GetMapping("posts/page")
     public String getPostsByPage(@RequestParam PostType type,
                                  @RequestParam int pageGroup,
                                  @PageableDefault(size = 10) Pageable pageable, Model model) {
@@ -119,7 +119,7 @@ public class PostFormController {
     }
 
     // 게시글 검색 시 검색된 게시글 프래그먼트로 반환
-    @GetMapping("/posts/search")
+    @GetMapping("posts/search")
     public String searchPosts(@RequestParam String searchType,
                               @RequestParam String keyword,
                               @PageableDefault(size = 10) Pageable pageable,
@@ -150,7 +150,7 @@ public class PostFormController {
     }
 
     // 검색 페이지 전환
-    @GetMapping("/posts/search/page")
+    @GetMapping("posts/search/page")
     public String getSearchPostsByPage(@RequestParam String searchType,
                                        @RequestParam String keyword,
                                        @RequestParam int pageGroup,
@@ -183,7 +183,7 @@ public class PostFormController {
         return "posts/list :: #postsFragment";
     }
 
-    @GetMapping("/post/write")
+    @GetMapping("post/write")
     public String createPost(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         PostDTO.Request request = new PostDTO.Request();
         if (userDetails != null) {
@@ -195,7 +195,7 @@ public class PostFormController {
     }
 
     // 게시글 조회
-    @GetMapping("/post/{id}")
+    @GetMapping("post/{id}")
     public String viewPost(@AuthenticationPrincipal CustomUserDetails userDetails,
                            @PathVariable("id") Long postId,
                            @PageableDefault(size = 15) Pageable pageable, Model model) {
@@ -236,7 +236,7 @@ public class PostFormController {
         return "post/view";
     }
 
-    @GetMapping("/post/{id}/edit")
+    @GetMapping("post/{id}/edit")
     public String updatePost(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @PathVariable("id") Long postId,
                              @RequestParam(required = false) String password,

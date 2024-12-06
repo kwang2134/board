@@ -17,6 +17,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	all*.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 repositories {
@@ -56,6 +57,12 @@ dependencies {
 	//테스트 롬복
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// h2
+	runtimeOnly 'com.h2database:h2'
+
+	//테스트용 Embedded Redis
+	implementation 'it.ozimov:embedded-redis:0.7.3'
 }
 
 tasks.named('test') {
