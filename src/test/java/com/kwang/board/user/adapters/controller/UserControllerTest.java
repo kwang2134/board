@@ -1,6 +1,6 @@
 package com.kwang.board.user.adapters.controller;
 
-import com.kwang.board.global.config.WithMockCustomUser;
+import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import com.kwang.board.user.application.dto.UserUpdateDTO;
 import com.kwang.board.user.application.service.UserService;
 import com.kwang.board.user.domain.model.User;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,9 +21,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -42,7 +45,6 @@ class UserControllerTest {
     @Autowired
     WebApplicationContext context;
 
-    static final long USER_ID = 1L;
     User testUser;
 
     @BeforeEach
@@ -57,6 +59,8 @@ class UserControllerTest {
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
+                .alwaysDo(result -> SecurityContextHolder.clearContext())
+                .alwaysDo(print())
                 .apply(springSecurity())  // addFilter 대신 apply 사용
                 .build();
     }
@@ -77,6 +81,7 @@ class UserControllerTest {
     @DisplayName("회원 가입 처리 테스트")
     @WithMockUser(username = "testuser", roles = "USER")
     void testSignupUser() throws Exception {
+        // when
         mockMvc.perform(post("/manage/user/signup")
                         .with(csrf())
                         .param("loginId", "testuser")
@@ -86,6 +91,7 @@ class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
+        // then
         User savedUser = userRepository.findByLoginId("testuser").orElse(null);
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getUsername()).isEqualTo("Test User");
@@ -93,43 +99,51 @@ class UserControllerTest {
 
     @Test
     @DisplayName("마이페이지 요청 테스트")
-    @WithMockCustomUser
     void testMyPage() throws Exception {
+        // given
         User user = userService.signupUser(testUser);
 
-        mockMvc.perform(get("/user/mypage"))
+        // when & then
+        mockMvc.perform(get("/user/mypage")
+                        .with(csrf())
+                        .with(user(new CustomUserDetails(user))))
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(UserFormController.class))
                 .andExpect(handler().methodName("myPage"))
                 .andExpect(model().attributeExists("user", "userRequest", "posts"))
                 .andReturn();
+
     }
 
     @Test
     @DisplayName("사용자 정보 수정 테스트")
-    @WithMockCustomUser
     void testUpdateUser() throws Exception {
+        // given
         User user = userService.signupUser(testUser);
 
+        // when
         mockMvc.perform(post("/manage/user/mypage")
                         .with(csrf())
+                        .with(user(new CustomUserDetails(user)))
                         .param("username", "Updated User")
                         .param("email", "updated@example.com")
                         .param("password", "updatedPassword"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/mypage"));
 
-        User updateUser = userService.updateUser(USER_ID, new UserUpdateDTO(
+        User updateUser = userService.updateUser(user.getId(), new UserUpdateDTO(
                 "Updated User",
                 "updated@example.com",
                 "updatedPassword")
         );
 
+        // then
         User findUser = userRepository.findByLoginId("testuser").orElse(null);
         assertThat(findUser).isNotNull();
         assertThat(findUser.getUsername()).isEqualTo("Updated User");
         assertThat(findUser.getEmail()).isEqualTo("updated@example.com");
         assertThat(findUser.getPassword()).isEqualTo(updateUser.getPassword());
+
     }
 }
 

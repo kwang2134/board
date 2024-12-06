@@ -3,7 +3,6 @@ package com.kwang.board.post.adapters.controller;
 import com.kwang.board.comment.application.service.CommentService;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.config.EmbeddedRedisConfig;
-import com.kwang.board.global.config.WithMockCustomUser;
 import com.kwang.board.global.exception.exceptions.comment.CommentNotFoundException;
 import com.kwang.board.global.exception.exceptions.post.PostNotFoundException;
 import com.kwang.board.photo.application.service.PhotoService;
@@ -14,6 +13,7 @@ import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.post.domain.model.PostType;
 import com.kwang.board.post.domain.repository.PostRepository;
+import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -29,8 +29,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -39,8 +41,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -111,17 +116,26 @@ class PostControllerTest {
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("sessionId", TEST_SESSION_ID);
+
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .alwaysDo(result -> SecurityContextHolder.clearContext())
+                .alwaysDo(print())
+                .apply(springSecurity())
+                .build();
     }
 
     @Test
     @DisplayName("회원 게시글 작성 테스트")
-    @WithMockCustomUser
     void testCreatePostWithUser() throws Exception {
+        // given
         // 이미지 임시 업로드
         String imagePath = photoService.tempUploadPhoto(testImage, TEST_SESSION_ID);
 
+        // when
         mockMvc.perform(post("/manage/post/write")
                         .with(csrf())
+                        .with(user(new CustomUserDetails(testUser)))
                         .param("title", "Test Title")
                         .param("content", "Test Content with " + imagePath)
                         .param("type", "NORMAL")
@@ -130,6 +144,8 @@ class PostControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         Post savedPost = postRepository.findAll().get(0);
+
+        // then
         assertThat(savedPost.getTitle()).isEqualTo("Test Title");
         assertThat(savedPost.getUser()).isNotNull();
     }
@@ -137,9 +153,11 @@ class PostControllerTest {
     @Test
     @DisplayName("비회원 게시글 작성 테스트")
     void testCreatePostWithoutUser() throws Exception {
+        // given
         // 이미지 임시 업로드
         String imagePath = photoService.tempUploadPhoto(testImage, TEST_SESSION_ID);
 
+        // when
         mockMvc.perform(post("/manage/post/write")
                         .with(csrf())
                         .param("title", "Anonymous Post")
@@ -151,22 +169,26 @@ class PostControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         Post savedPost = postRepository.findAll().get(0);
+
+        // then
         assertThat(savedPost.getTitle()).isEqualTo("Anonymous Post");
         assertThat(savedPost.getUser()).isNull();
     }
 
     @Test
     @DisplayName("게시글 수정 테스트")
-    @WithMockCustomUser
     void testUpdatePost() throws Exception {
+        // given
         Post savedPost = postService.createPost(Post.builder()
                 .title("Original Title")
                 .content("Original Content")
                 .postType(PostType.NORMAL)
                 .build(), testUser.getId());
 
+        // when
         mockMvc.perform(post("/manage/post/{id}/edit", savedPost.getId())
                         .with(csrf())
+                        .with(user(new CustomUserDetails(testUser)))
                         .param("title", "Updated Title")
                         .param("content", "Updated Content")
                         .param("type", "NORMAL"))
@@ -174,13 +196,15 @@ class PostControllerTest {
                 .andExpect(redirectedUrl("/post/" + savedPost.getId()));
 
         Post updatedPost = postService.viewPost(savedPost.getId());
+
+        // then
         assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
     }
 
     @Test
     @DisplayName("게시글 삭제 테스트 - 연관 데이터(댓글, 이미지) 삭제 확인")
-    @WithMockCustomUser
     void testDeletePost() throws Exception {
+        // given
         // 테스트용 이미지 파일 생성
         MockMultipartFile testImage = new MockMultipartFile(
                 "file",
@@ -218,12 +242,15 @@ class PostControllerTest {
                 .build();
         Comment savedNonMemberComment = commentService.createComt(nonMemberComment, savedPost.getId(), null);
 
+        // when
         // 게시글 삭제 요청
         mockMvc.perform(post("/manage/post/{id}/delete", savedPost.getId())
+                        .with(user(new CustomUserDetails(testUser)))
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
+        // then
         // 게시글 삭제 확인
         assertThatThrownBy(() -> postService.viewPost(savedPost.getId()))
                 .isInstanceOf(PostNotFoundException.class);
@@ -244,26 +271,29 @@ class PostControllerTest {
 
     @Test
     @DisplayName("게시글 추천 테스트")
-    @WithMockCustomUser
     void testRecommendPost() throws Exception {
+        // given
         Post savedPost = postService.createPost(Post.builder()
                 .title("Test Title")
                 .content("Test Content")
                 .postType(PostType.NORMAL)
                 .build(), testUser.getId());
 
+        // when
         mockMvc.perform(post("/api/post/{id}/recommend", savedPost.getId())
+                        .with(user(new CustomUserDetails(testUser)))
                         .with(csrf()))
                 .andExpect(status().isOk());
 
+        // then
         Post recommendedPost = postService.viewPost(savedPost.getId());
         assertThat(recommendedPost.getRecomCount()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("이미 추천한 게시글 재추천 시 실패 테스트")
-    @WithMockCustomUser
     void testRecommendAlreadyRecommendedPost() throws Exception {
+        // given
         // 테스트용 게시글 생성
         Post savedPost = postService.createPost(Post.builder()
                 .title("Test Title")
@@ -271,17 +301,23 @@ class PostControllerTest {
                 .postType(PostType.NORMAL)
                 .build(), testUser.getId());
 
+        CustomUserDetails user = new CustomUserDetails(testUser);
+
+        // when
         // 첫 번째 추천 요청
         mockMvc.perform(post("/api/post/{id}/recommend", savedPost.getId())
+                        .with(user(user))
                         .with(csrf()))
                 .andExpect(status().isOk());
 
         // 동일 게시글 재추천 시도
         mockMvc.perform(post("/api/post/{id}/recommend", savedPost.getId())
+                        .with(user(user))
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("이미 추천한 게시글입니다."));
 
+        // then
         // 추천 수가 1로 유지되는지 확인
         Post post = postService.viewPost(savedPost.getId());
         assertThat(post.getRecomCount()).isEqualTo(1);
@@ -289,8 +325,8 @@ class PostControllerTest {
 
     @Test
     @DisplayName("비추천한 게시글 추천 시 실패 테스트")
-    @WithMockCustomUser
     void testRecommendAfterNotRecommend() throws Exception {
+        // given
         // 테스트용 게시글 생성
         Post savedPost = postService.createPost(Post.builder()
                 .title("Test Title")
@@ -298,17 +334,23 @@ class PostControllerTest {
                 .postType(PostType.NORMAL)
                 .build(), testUser.getId());
 
+        CustomUserDetails user = new CustomUserDetails(testUser);
+
+        // when
         // 비추천 요청
         mockMvc.perform(post("/api/post/{id}/not-recommend", savedPost.getId())
+                        .with(user(user))
                         .with(csrf()))
                 .andExpect(status().isOk());
 
         // 동일 게시글 추천 시도
         mockMvc.perform(post("/api/post/{id}/recommend", savedPost.getId())
+                        .with(user(user))
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("이미 비추천한 게시글입니다."));
 
+        // then
         // 비추천 수는 1이고 추천 수는 0인지 확인
         Post post = postService.viewPost(savedPost.getId());
         assertThat(post.getNotRecomCount()).isEqualTo(1);
@@ -319,6 +361,7 @@ class PostControllerTest {
     @Test
     @DisplayName("게시글 검색 테스트")
     void testSearchPosts() throws Exception {
+        // given
         // 테스트용 게시글 생성
         Post titlePost = postService.createPost(Post.builder()
                 .title("Search Test Title")
@@ -341,6 +384,7 @@ class PostControllerTest {
                 .postType(PostType.NORMAL)
                 .build(), testUser.getId());
 
+        // when
         // 제목으로 검색
         MvcResult titleResult = mockMvc.perform(get("/posts/search")
                         .param("searchType", "TITLE")
@@ -350,12 +394,14 @@ class PostControllerTest {
                 .andExpect(model().attributeExists("posts"))
                 .andReturn();
 
+        // then
         List<PostDTO.ListResponse> titleSearchResults = (List<PostDTO.ListResponse>) titleResult
                 .getModelAndView().getModel().get("posts");
         assertThat(titleSearchResults).hasSize(2)
                 .extracting("title")
                 .contains("Search Test Title", "Search Test Both");
 
+        // when
         // 내용으로 검색
         MvcResult contentResult = mockMvc.perform(get("/posts/search")
                         .param("searchType", "CONTENT")
@@ -363,12 +409,14 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // then
         List<PostDTO.ListResponse> contentSearchResults = (List<PostDTO.ListResponse>) contentResult
                 .getModelAndView().getModel().get("posts");
         assertThat(contentSearchResults).hasSize(2)
                 .extracting("title")
                 .contains("Normal Title", "Search Test Both");
 
+        // when
         // 제목+내용으로 검색
         MvcResult bothResult = mockMvc.perform(get("/posts/search")
                         .param("searchType", "TITLE_CONTENT")
@@ -376,12 +424,14 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // then
         List<PostDTO.ListResponse> bothSearchResults = (List<PostDTO.ListResponse>) bothResult
                 .getModelAndView().getModel().get("posts");
         assertThat(bothSearchResults).hasSize(3)
                 .extracting("title")
                 .contains("Search Test Title", "Normal Title", "Search Test Both");
 
+        // when
         // 작성자로 검색
         MvcResult authorResult = mockMvc.perform(get("/posts/search")
                         .param("searchType", "AUTHOR")
@@ -389,6 +439,7 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // then
         List<PostDTO.ListResponse> authorSearchResults = (List<PostDTO.ListResponse>) authorResult
                 .getModelAndView().getModel().get("posts");
         assertThat(authorSearchResults).hasSize(3)

@@ -45,6 +45,7 @@ class PhotoControllerTest {
     @Test
     @DisplayName("임시 이미지 업로드 테스트")
     void testTempUpload() throws Exception {
+        // given
         // Mock 파일 생성
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -53,6 +54,7 @@ class PhotoControllerTest {
                 "test image content".getBytes()
         );
 
+        // when & then
         // 요청 수행
         mockMvc.perform(multipart("/api/photos/temp-upload")
                         .file(file)
@@ -67,6 +69,7 @@ class PhotoControllerTest {
     @Test
     @DisplayName("파일이 없는 경우 업로드 실패 테스트")
     void testTempUploadWithoutFile() throws Exception {
+        // when & then
         mockMvc.perform(multipart("/api/photos/temp-upload")
                         .with(csrf())
                         .session(httpSession))
@@ -76,6 +79,7 @@ class PhotoControllerTest {
     @Test
     @DisplayName("잘못된 파일 확장자 업로드 테스트")
     void testTempUploadWithInvalidExtension() throws Exception {
+        // given
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test-file",  // 확장자 없음
@@ -83,6 +87,7 @@ class PhotoControllerTest {
                 "test content".getBytes()
         );
 
+        // when & then
         mockMvc.perform(multipart("/api/photos/temp-upload")
                         .file(file)
                         .with(csrf())
@@ -93,6 +98,7 @@ class PhotoControllerTest {
     @Test
     @DisplayName("큰 파일 업로드 테스트")
     void testTempUploadWithLargeFile() throws Exception {
+        // given
         // 4MB를 초과하는 파일 생성
         byte[] content = new byte[4 * 1024 * 1024 + 1];
         new Random().nextBytes(content);
@@ -104,6 +110,7 @@ class PhotoControllerTest {
                 content
         );
 
+        // when & then
         mockMvc.perform(multipart("/api/photos/temp-upload")
                         .file(file)
                         .with(csrf())
