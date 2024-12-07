@@ -322,9 +322,8 @@ class CommentControllerTest {
                         .with(user(new CustomUserDetails(testUser)))
                         .param("content", "Updated Comment")
                         .param("displayName", "Test User"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("error/unauthorized"))
-                .andExpect(model().attribute("errorMessage", "댓글에 대한 수정 권한이 없습니다."));
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("댓글에 대한 수정 권한이 없습니다."));
     }
 
     @Test
@@ -345,9 +344,8 @@ class CommentControllerTest {
                         testPost.getId(), otherUserComment.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser))))
-                .andExpect(status().isOk())
-                .andExpect(view().name("error/unauthorized"))
-                .andExpect(model().attribute("errorMessage", "댓글에 대한 삭제 권한이 없습니다."));
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("댓글에 대한 삭제 권한이 없습니다."));
     }
 
 

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/user")
@@ -38,8 +39,11 @@ public class UserFormController {
 
     //로그인 -> SpringSecurity 처리
     @GetMapping("/login")
-    public String loginForm() {
-        return "user/loginForm";  // templates/users/loginForm.html
+    public String loginForm(@RequestParam(required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return "user/loginForm";
     }
 
     //마이페이지
