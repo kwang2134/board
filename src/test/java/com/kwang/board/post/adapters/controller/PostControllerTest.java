@@ -4,6 +4,7 @@ import com.kwang.board.comment.application.service.CommentService;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.config.EmbeddedRedisConfig;
 import com.kwang.board.global.exception.exceptions.comment.CommentNotFoundException;
+import com.kwang.board.global.exception.exceptions.photo.FileUploadException;
 import com.kwang.board.global.exception.exceptions.post.PostNotFoundException;
 import com.kwang.board.photo.application.service.PhotoService;
 import com.kwang.board.photo.domain.model.Photo;
@@ -16,6 +17,7 @@ import com.kwang.board.post.domain.repository.PostRepository;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -40,6 +43,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -48,6 +53,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(EmbeddedRedisConfig.class)
@@ -61,6 +67,9 @@ class PostControllerTest {
 
     @Autowired
     PhotoService photoService;
+
+    @MockitoBean
+    PhotoService mockPhotoService;
 
     @Autowired
     UserRepository userRepository;
@@ -445,6 +454,62 @@ class PostControllerTest {
         assertThat(authorSearchResults).hasSize(3)
                 .extracting("username")
                 .containsOnly("Test User");
+    }
+
+    @Test
+    @DisplayName("게시글 작성 시 파일 업로드 실패 테스트")
+    void testCreatePostWithFileUploadFailure() throws Exception {
+        // Given
+        PostDTO.Request request = new PostDTO.Request(
+                "Test Title"
+                ,"Test Content"
+                , "NORMAL"
+                , "Test User"
+                , null
+        );
+        // When & Then
+        doThrow(new FileUploadException("파일 업로드에 실패했습니다."))
+                .when(mockPhotoService).uploadPhoto(any(Long.class), any(String.class));
+
+        mockMvc.perform(post("/manage/post/write")
+                        .with(csrf())
+                        .with(user(new CustomUserDetails(testUser)))
+                        .flashAttr("request", request))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/write"))
+                .andExpect(flash().attributeExists("request"))
+                .andExpect(flash().attribute("errorMessage", "파일 업로드에 실패했습니다."));
+    }
+
+    @Test
+    @DisplayName("게시글 수정 시 파일 업로드 실패 테스트")
+    void testUpdatePostWithFileUploadFailure() throws Exception {
+        // Given
+        Post savedPost = postRepository.save(Post.builder()
+                .title("Original Title")
+                .content("Original Content")
+                .postType(PostType.NORMAL)
+                .user(testUser)
+                .build());
+
+        PostDTO.Request request = new PostDTO.Request();
+        request.setTitle("Updated Title");
+        request.setContent("Updated Content");
+        request.setDisplayName("Test User");
+
+        // When & Then
+        doThrow(new FileUploadException("파일 업로드에 실패했습니다."))
+                .when(photoService).updatePhoto(any(Long.class), any(String.class));
+
+        mockMvc.perform(post("/manage/post/" + savedPost.getId() + "/edit")
+                        .header("Referer", "/post/" + savedPost.getId() + "/edit")
+                        .with(csrf())
+                        .with(user(new CustomUserDetails(testUser)))
+                        .flashAttr("request", request))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId() + "/edit"))
+                .andExpect(flash().attributeExists("request"))
+                .andExpect(flash().attribute("errorMessage", "파일 업로드에 실패했습니다."));
     }
 
     @AfterEach

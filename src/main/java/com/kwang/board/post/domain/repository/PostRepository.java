@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByUserId(Long userId);
 
-    @Query("SELECT p FROM Post p JOIN FETCH p.user WHERE p.id = :postId")
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.user WHERE p.id = :postId")
     Optional<Post> findByIdWithUser(@Param("postId") Long postId);
 
     Page<Post> findByPostType(PostType postType, Pageable pageable);

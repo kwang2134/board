@@ -4,6 +4,7 @@ import com.kwang.board.comment.adapters.mapper.CommentMapper;
 import com.kwang.board.comment.application.dto.CommentDTO;
 import com.kwang.board.comment.application.service.CommentService;
 import com.kwang.board.comment.domain.model.Comment;
+import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,13 +63,36 @@ public class CommentFormController {
     }
 
     @GetMapping("/comment/{commentId}/edit")
-    public String getCommentEditForm(@PathVariable("postId") Long postId,
+    public String getCommentEditForm(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable("postId") Long postId,
                                      @PathVariable("commentId") Long commentId,
+                                     @RequestParam(required = false) String password,
                                      Model model) {
-        Comment comment = commentService.viewComt(commentId);
+
+        Comment comment = commentService.viewComtWithUser(commentId);
+
+        // 회원 댓글인 경우
+        if (comment.getUser() != null) {
+            if (checkPermission(userDetails, comment)) {
+                throw new UnauthorizedAccessException("댓글에 대한 수정 권한이 없습니다.");
+            }
+        }
+        // 비회원 댓글인 경우
+        else {
+            if (checkPassword(commentId, password)) {
+                throw new UnauthorizedAccessException("비밀번호가 일치하지 않습니다.");
+            }
+        }
+
         model.addAttribute("commentEditRequest", commentMapper.toRequestDTO(comment));
-        return "post/view :: #commentEditForm";  // 수정 폼 프래그먼트
+        return "post/view :: #commentEditForm";
     }
 
+    private boolean checkPassword(Long commentId, String password) {
+        return password == null || !commentService.checkNonUserComment(commentId, password);
+    }
 
+    private boolean checkPermission(CustomUserDetails userDetails, Comment comment) {
+        return userDetails == null || !comment.getUser().getId().equals(userDetails.getId());
+    }
 }

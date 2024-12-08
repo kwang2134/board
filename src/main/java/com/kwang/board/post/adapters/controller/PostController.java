@@ -1,5 +1,6 @@
 package com.kwang.board.post.adapters.controller;
 
+import com.kwang.board.global.aop.annotation.SavePostRequest;
 import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.photo.application.service.PhotoService;
 import com.kwang.board.post.adapters.mapper.PostMapper;
@@ -24,7 +25,13 @@ public class PostController {
 
     private final PostMapper postMapper;
 
+    /**
+     * 작성된 게시글 내용 session 에 임시 저장
+     * 성공 시 session 에 임시 저장된 내용 삭제
+     * 실패 시 다시 작성 폼으로 redirect
+     */
     @PostMapping("/write")
+    @SavePostRequest
     public String createPost(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @Valid @ModelAttribute PostDTO.Request request,
                              HttpSession session) {
@@ -33,10 +40,16 @@ public class PostController {
         Post createdPost = postService.createPost(postMapper.toEntity(request), userId);
 
         photoService.uploadPhoto(createdPost.getId(), session.getId());
-        return "redirect:/";
+        return "redirect:/post/" + createdPost.getId();
     }
 
+    /**
+     * 수정된 게시글 내용 session 에 임시 저장
+     * 성공 시 session 에 임시 저장된 내용 삭제
+     * 실패 시 다시 수정 폼으로 redirect
+     */
     @PostMapping("/{id}/edit")
+    @SavePostRequest
     public String updatePost(@Valid @ModelAttribute PostDTO.Request request,
                              @PathVariable("id") Long postId, HttpSession session) {
 
@@ -49,7 +62,7 @@ public class PostController {
     @PostMapping("/{id}/delete")
     public String deletePost(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @PathVariable("id") Long postId,
-                             @RequestParam(required = false) String password){
+                             @RequestParam(required = false) String password) {
         Post post = postService.viewPost(postId);
 
         // 회원 게시글인 경우
@@ -68,6 +81,18 @@ public class PostController {
 
         photoService.deletePhoto(postId);
         postService.deletePost(postId);
+        return "redirect:/";
+    }
+
+    @PostMapping("/post/write/cancel")
+    public String cancelCreatePost(HttpSession session) {
+        session.removeAttribute("postCreateRequest");
+        return "redirect:/";
+    }
+
+    @PostMapping("/post/{id}/edit/cancel")
+    public String cancelEditPost(HttpSession session) {
+        session.removeAttribute("postEditRequest");
         return "redirect:/";
     }
 

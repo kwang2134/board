@@ -276,12 +276,14 @@ class CommentControllerTest {
 
         // when & then
         mockMvc.perform(get("/post/{postId}/comment/{commentId}/edit",
-                        testPost.getId(), savedComment.getId()))
+                        testPost.getId(), savedComment.getId())
+                        .with(user(new CustomUserDetails(testUser))))
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/view :: #commentEditForm"))
                 .andExpect(model().attributeExists("commentEditRequest"));
 
     }
+
 
     @Test
     @DisplayName("비회원 댓글 수정 폼 조회 테스트")
@@ -296,7 +298,8 @@ class CommentControllerTest {
 
         // when & then
         mockMvc.perform(get("/post/{postId}/comment/{commentId}/edit",
-                        testPost.getId(), savedComment.getId()))
+                        testPost.getId(), savedComment.getId())
+                        .param("password", "password123"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("post/view :: #commentEditForm"))
                 .andExpect(model().attributeExists("commentEditRequest"));
@@ -316,7 +319,7 @@ class CommentControllerTest {
         Comment otherUserComment = commentService.createComt(parentComment, testPost.getId(), otherUser.getId());
 
         // When & Then
-        mockMvc.perform(post("/manage/post/{postId}/comment/{commentId}/edit",
+        mockMvc.perform(get("/post/{postId}/comment/{commentId}/edit",
                         testPost.getId(), otherUserComment.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser)))

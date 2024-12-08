@@ -12,6 +12,7 @@ import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.post.domain.model.PostType;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -183,13 +184,23 @@ public class PostFormController {
         return "posts/list :: #postsFragment";
     }
 
+    /**
+     * 게시글 작성 실패 시 다시 작성 폼으로 redirect
+     * session 에 저장된 작성 내용을 가져옴
+     * session 에 작성된 내용이 없는 경우 새로운 게시글 작성
+     */
+
     @GetMapping("post/write")
-    public String createPost(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        PostDTO.Request request = new PostDTO.Request();
-        if (userDetails != null) {
-            // 로그인 상태면 작성자명 미리 설정
-            request.setDisplayName(userDetails.getDisplayName());
+    public String createPost(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, HttpSession session) {
+        PostDTO.Request request = (PostDTO.Request) session.getAttribute("postCreateRequest");
+
+        if (request == null) {
+            request = new PostDTO.Request();
+            if (userDetails != null) {
+                request.setDisplayName(userDetails.getDisplayName());
+            }
         }
+
         model.addAttribute("request", request);
         return "post/write";
     }
@@ -236,11 +247,17 @@ public class PostFormController {
         return "post/view";
     }
 
+    /**
+     * 게시글 수정 실패 시 다시 수정 폼으로 redirect
+     * session 에 저장된 작성 내용을 가져옴
+     * session 에 작성된 내용이 없는 경우 새로운 게시글 수정 요청으로 취급
+     */
     @GetMapping("post/{id}/edit")
     public String updatePost(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @PathVariable("id") Long postId,
                              @RequestParam(required = false) String password,
-                             Model model) {
+                             Model model,
+                             HttpSession session) {
 
         Post post = postService.viewPost(postId);
 
@@ -258,7 +275,13 @@ public class PostFormController {
             }
         }
 
-        model.addAttribute("request", postMapper.toRequestDTO(post));
+        PostDTO.Request request = (PostDTO.Request) session.getAttribute("postEditRequest");
+
+        if (request == null) {
+            request = postMapper.toRequestDTO(post);
+        }
+
+        model.addAttribute("request", request);
         return "post/edit";
 
     }

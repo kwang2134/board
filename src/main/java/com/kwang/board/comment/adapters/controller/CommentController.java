@@ -42,30 +42,10 @@ public class CommentController {
     }
 
     @PostMapping("/{commentId}/edit")
-    public String updateComment(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                @Valid @ModelAttribute CommentDTO.Request commentEditRequest,
+    public String updateComment(@Valid @ModelAttribute CommentDTO.Request commentEditRequest,
                                 @PathVariable("commentId") Long commentId,
-                                @PathVariable("postId") Long postId,
-                                @RequestParam(required = false) String password){
-
-        Comment comment = commentService.viewComtWithUser(commentId);
-
-        // 회원 댓글인 경우
-        if (comment.getUser() != null) {
-            if (checkPermission(userDetails, comment)) {
-                throw new UnauthorizedAccessException("댓글에 대한 수정 권한이 없습니다.");
-            }
-        }
-
-        // 비회원 댓글인 경우
-        else {
-            if (checkPassword(commentId, password)) {
-                throw new UnauthorizedAccessException("비밀번호가 일치하지 않습니다.");
-            }
-        }
-
+                                @PathVariable("postId") Long postId) {
         commentService.updateComt(commentId, commentMapper.toUpdateDTO(commentEditRequest));
-
         return "redirect:/post/" + postId;
     }
 
