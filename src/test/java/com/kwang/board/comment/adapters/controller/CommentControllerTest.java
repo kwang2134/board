@@ -110,7 +110,6 @@ class CommentControllerTest {
 
     @AfterEach
     void tearDown() {
-        SecurityContextHolder.clearContext();
         commentRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
@@ -181,6 +180,29 @@ class CommentControllerTest {
         assertThat(savedComment.getContent()).isEqualTo("Anonymous Comment");
         assertThat(savedComment.getUser()).isNull();
         assertThat(savedComment.getPassword()).isEqualTo("password123");
+    }
+
+    @Test
+    @DisplayName("비회원 대댓글 작성 테스트")
+    void testCreateReplyCommentWithoutUser() throws Exception {
+        // when
+        // 부모 댓글 저장
+        Comment savedParent = commentService.createComt(parentComment, testPost.getId(), testUser.getId());
+
+        mockMvc.perform(post("/manage/post/{postId}/comment/write", testPost.getId())
+                        .with(csrf())
+                        .param("content", "Reply Anonymous Comment")
+                        .param("displayName", "Anonymous")
+                        .param("password", "password123")
+                        .param("parentId", savedParent.getId().toString()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + testPost.getId()));
+
+        // then
+        // 대댓글 저장 확인
+        List<Comment> childComments = commentService.viewChildComts(savedParent.getId());
+        assertThat(childComments).hasSize(1);
+        assertThat(childComments.get(0).getParentComment().getId()).isEqualTo(savedParent.getId());
     }
 
     @Test

@@ -93,6 +93,14 @@ public class PhotoService implements PhotoCrudUseCase {
                         pathMap.put("/images/" + tempFileName, "/images/" + newFileName);
 
                     } catch (Exception e) {
+                        // 실패 시 이미 변경된 파일들 삭제
+                        for (String path : pathMap.values()) {
+                            String fileName = path.substring(path.lastIndexOf('/') + 1);
+                            File file = new File(UPLOAD_PATH + fileName);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                        }
                         throw new FileUploadException("Failed to process file: " + tempFileName);
                     }
                 }
@@ -163,6 +171,14 @@ public class PhotoService implements PhotoCrudUseCase {
                         pathMap.put("/images/" + tempFileName, "/images/" + newFileName);
 
                     } catch (Exception e) {
+                        // 실패 시 이미 변경된 파일들 삭제
+                        for (String path : pathMap.values()) {
+                            String fileName = path.substring(path.lastIndexOf('/') + 1);
+                            File file = new File(UPLOAD_PATH + fileName);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                        }
                         throw new FileUploadException("Failed to process file: " + tempFileName);
                     }
                 }

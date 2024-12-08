@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -79,7 +78,6 @@ class UserControllerTest {
 
     @Test
     @DisplayName("회원 가입 처리 테스트")
-    @WithMockUser(username = "testuser", roles = "USER")
     void testSignupUser() throws Exception {
         // when
         mockMvc.perform(post("/manage/user/signup")

@@ -149,14 +149,14 @@ class PostControllerTest {
                         .param("content", "Test Content with " + imagePath)
                         .param("type", "NORMAL")
                         .param("displayName", "Test User"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(status().is3xxRedirection());
 
         Post savedPost = postRepository.findAll().get(0);
 
         // then
         assertThat(savedPost.getTitle()).isEqualTo("Test Title");
         assertThat(savedPost.getUser()).isNotNull();
+        assertThat(redirectedUrlPattern("/post/" + savedPost.getId())).isNotNull();
     }
 
     @Test
@@ -174,19 +174,19 @@ class PostControllerTest {
                         .param("type", "NORMAL")
                         .param("displayName", "Anonymous")
                         .param("password", "password123"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(status().is3xxRedirection());
 
         Post savedPost = postRepository.findAll().get(0);
 
         // then
         assertThat(savedPost.getTitle()).isEqualTo("Anonymous Post");
         assertThat(savedPost.getUser()).isNull();
+        assertThat(redirectedUrlPattern("/post/" + savedPost.getId())).isNotNull();
     }
 
     @Test
-    @DisplayName("게시글 수정 테스트")
-    void testUpdatePost() throws Exception {
+    @DisplayName("회원 게시글 수정 테스트")
+    void testUpdatePostWithUser() throws Exception {
         // given
         Post savedPost = postService.createPost(Post.builder()
                 .title("Original Title")
@@ -208,6 +208,73 @@ class PostControllerTest {
 
         // then
         assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
+    }
+
+    @Test
+    @DisplayName("비회원 게시글 수정 테스트")
+    void testUpdatePostWithoutUser() throws Exception {
+        // given
+        Post savedPost = postService.createPost(Post.builder()
+                .title("Anonymous Title")
+                .displayName("AnonymousUser")
+                .password("password123")
+                .content("Anonymous Content")
+                .postType(PostType.NORMAL)
+                .build(), null);
+
+        // when
+        mockMvc.perform(post("/manage/post/{id}/edit", savedPost.getId())
+                        .with(csrf())
+                        .param("title", "Updated Title")
+                        .param("content", "Updated Content")
+                        .param("type", "NORMAL")
+                        .param("password", "password123"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + savedPost.getId()));
+
+        Post updatedPost = postService.viewPost(savedPost.getId());
+
+        // then
+        assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
+    }
+
+    @Test
+    @DisplayName("회원 게시글 수정 폼 요청 테스트")
+    void testUpdatePostFormWithUser() throws Exception {
+        // given
+        Post savedPost = postService.createPost(Post.builder()
+                .title("Original Title")
+                .content("Original Content")
+                .postType(PostType.NORMAL)
+                .build(), testUser.getId());
+
+        // when & then
+        mockMvc.perform(get("/post/{id}/edit", savedPost.getId())
+                        .with(csrf())
+                        .with(user(new CustomUserDetails(testUser))))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("request"));
+
+    }
+
+    @Test
+    @DisplayName("비회원 게시글 수정 폼 요청 테스트")
+    void testUpdatePostFormWithoutUser() throws Exception {
+        // given
+        Post savedPost = postService.createPost(Post.builder()
+                .title("Anonymous Title")
+                .displayName("AnonymousUser")
+                .password("password123")
+                .content("Anonymous Content")
+                .postType(PostType.NORMAL)
+                .build(), null);
+
+        // when & then
+        mockMvc.perform(get("/post/{id}/edit", savedPost.getId())
+                        .with(csrf())
+                        .param("password", "password123"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("request"));
     }
 
     @Test
@@ -462,7 +529,7 @@ class PostControllerTest {
         // Given
         PostDTO.Request request = new PostDTO.Request(
                 "Test Title"
-                ,"Test Content"
+                , "Test Content"
                 , "NORMAL"
                 , "Test User"
                 , null
