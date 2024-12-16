@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Board</title>
+
+    <!-- 공통 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet">
+
+    <!-- 공통 CSS -->
+    <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <link rel="stylesheet" th:href="@{/css/header/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer/footer.css}">
+    <style>
+        /* 기본 스타일 초기화 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 헤더 아래 콘텐츠 여백 */
+        main {
+            margin-top: 80px;  /* 헤더 높이만큼 여백 */
+            flex: 1;
+        }
+
+        /* 푸터 하단 고정 */
+        footer {
+            margin-top: auto;
+        }
+    </style>
+
+    <!-- 페이지별 추가 CSS -->
+    <th:block layout:fragment="css"></th:block>
+</head>
+<body>
+<!-- 헤더 -->
+<div th:replace="~{fragments/header/header :: header}"></div>
+
+<!-- 메인 콘텐츠 -->
+<main layout:fragment="content">
+    <!-- 각 페이지의 내용이 여기에 들어감 -->
+</main>
+
+<!-- 푸터 -->
+<div th:replace="~{fragments/footer/footer :: footer}"></div>
+
+<!-- 공통 JavaScript -->
+<!--<script th:src="@{/js/common.js}"></script>-->
+
+<!-- 페이지별 추가 JavaScript -->
+<th:block layout:fragment="script"></th:block>
+</body>
+</html>

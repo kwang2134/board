@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum PostType {
-    NORMAL("NORMAL"),
-    NOTICE("NOTICE"),
-    POPULAR("POPULAR");
-
-    private final String value;
+    NORMAL,
+    NOTICE,
+    POPULAR
 }

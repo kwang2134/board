@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="edit-fragment">
+    <div class="edit-box">
+        <div class="logo">
+            <span class="logo-story">Story</span>
+            <span class="logo-board">Board</span>
+        </div>
+        <form th:action="@{/user/mypage}" method="post" th:object="${userRequest}" id="editForm">
+            <div class="input-group">
+                <input type="text" th:field="*{username}" placeholder="Username"
+                       class="edit-input" th:classappend="${#fields.hasErrors('username')} ? 'error'" required>
+                <div class="message error" th:if="${#fields.hasErrors('username')}"
+                     th:errors="*{username}"></div>
+                <div class="message"></div>
+            </div>
+            <div class="input-group">
+                <input type="email" th:field="*{email}" placeholder="E-mail"
+                       class="edit-input" th:classappend="${#fields.hasErrors('email')} ? 'error'">
+                <div class="message"></div>
+            </div>
+            <div class="input-group">
+                <input type="password" th:field="*{password}" placeholder="Password"
+                       class="edit-input" th:classappend="${#fields.hasErrors('password')} ? 'error'" required>
+                <div class="message error" th:if="${#fields.hasErrors('password')}"
+                     th:errors="*{password}"></div>
+            </div>
+            <div class="input-group">
+                <input type="password" id="confirmPassword" placeholder="Confirm Password"
+                       class="edit-input" required>
+                <div class="message"></div>
+            </div>
+            <button type="submit" class="edit-button button">Edit</button>
+        </form>
+    </div>
+</div>
+</html>

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      # - mysql  # MySQL 사용 시 주석 해제
+    environment:
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      # MySQL 사용 시 아래 환경변수 주석 해제
+      # SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/board?useSSL=false&allowPublicKeyRetrieval=true
+      # SPRING_DATASOURCE_USERNAME: kwang
+      # SPRING_DATASOURCE_PASSWORD: 6036
+
+  # MySQL 사용 시 아래 서비스 주석 해제
+  # mysql:
+  #   image: mysql:8.0.39
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_DATABASE: board
+  #     MYSQL_USER: kwang
+  #     MYSQL_PASSWORD: 6036
+  #     MYSQL_ROOT_PASSWORD: root
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:7.4.1
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  # mysql-data:  # MySQL 사용 시 주석 해제
+  redis-data:

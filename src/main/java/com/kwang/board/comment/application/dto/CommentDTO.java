@@ -23,10 +23,11 @@ public class CommentDTO {
     public static class Response {
         private final Long id;
         private final Long userId;
+        private final Long parentId;
         private final String username;
         private final String content;
         private final boolean isDeleted;
-        private final String createAt;
+        private final String createdAt;
         private final String updatedAt;
     }
 

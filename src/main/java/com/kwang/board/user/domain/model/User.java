@@ -53,6 +53,16 @@ public class User extends BaseEntity {
         }
     }
 
+    public void changeManager() {
+        if (this.role == Role.USER) {
+            this.role = Role.MANAGER;
+        }
+    }
+
+    public void changeUser() {
+        this.role = Role.USER;
+    }
+
     public void modify(UserUpdateDTO dto) {
         this.username = dto.getUsername();
         this.password = dto.getPassword();

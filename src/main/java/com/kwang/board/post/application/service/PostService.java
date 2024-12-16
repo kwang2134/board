@@ -170,19 +170,19 @@ public class PostService implements PostCrudUseCase, RecommendPostUseCase {
     @Override
     @Transactional(readOnly = true)
     public Page<Post> viewPopularPosts(Pageable pageable) {
-        return postRepository.findByPostType(PostType.POPULAR, pageable);
+        return postRepository.findByPostTypeOrderByIdDesc(PostType.POPULAR, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Post> viewNoticePosts(Pageable pageable) {
-        return postRepository.findByPostType(PostType.NOTICE, pageable);
+        return postRepository.findByPostTypeOrderByIdDesc(PostType.NOTICE, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Post> viewNormalPosts(Pageable pageable) {
-        return postRepository.findByPostType(PostType.NORMAL, pageable);
+        return postRepository.findByPostTypeOrderByIdDesc(PostType.NORMAL, pageable);
     }
 
 

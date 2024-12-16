@@ -80,7 +80,7 @@ class UserControllerTest {
     @DisplayName("회원 가입 처리 테스트")
     void testSignupUser() throws Exception {
         // when
-        mockMvc.perform(post("/manage/user/signup")
+        mockMvc.perform(post("/user/signup")
                         .with(csrf())
                         .param("loginId", "testuser")
                         .param("password", "password123")
@@ -120,7 +120,7 @@ class UserControllerTest {
         User user = userService.signupUser(testUser);
 
         // when
-        mockMvc.perform(post("/manage/user/mypage")
+        mockMvc.perform(post("/user/mypage")
                         .with(csrf())
                         .with(user(new CustomUserDetails(user)))
                         .param("username", "Updated User")

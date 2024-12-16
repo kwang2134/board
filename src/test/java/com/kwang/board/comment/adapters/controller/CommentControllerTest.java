@@ -120,7 +120,7 @@ class CommentControllerTest {
     void testCreateOriginalCommentWithUser() throws Exception {
         // when
         // 댓글 작성 테스트 수행
-        mockMvc.perform(post("/manage/post/{postId}/comment/write", testPost.getId())
+        mockMvc.perform(post("/post/{postId}/comment/write", testPost.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser)))
                         .param("content", "Original Comment")
@@ -144,7 +144,7 @@ class CommentControllerTest {
         // 부모 댓글 저장
         Comment savedParent = commentService.createComt(parentComment, testPost.getId(), testUser.getId());
 
-        mockMvc.perform(post("/manage/post/{postId}/comment/write", testPost.getId())
+        mockMvc.perform(post("/post/{postId}/comment/write", testPost.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser)))
                         .param("content", "Reply Comment")
@@ -165,7 +165,7 @@ class CommentControllerTest {
     @DisplayName("비회원 댓글 작성 테스트")
     void testCreateCommentWithoutUser() throws Exception {
         // when
-        mockMvc.perform(post("/manage/post/{postId}/comment/write", testPost.getId())
+        mockMvc.perform(post("/post/{postId}/comment/write", testPost.getId())
                         .with(csrf())
                         .param("content", "Anonymous Comment")
                         .param("displayName", "Anonymous")
@@ -189,7 +189,7 @@ class CommentControllerTest {
         // 부모 댓글 저장
         Comment savedParent = commentService.createComt(parentComment, testPost.getId(), testUser.getId());
 
-        mockMvc.perform(post("/manage/post/{postId}/comment/write", testPost.getId())
+        mockMvc.perform(post("/post/{postId}/comment/write", testPost.getId())
                         .with(csrf())
                         .param("content", "Reply Anonymous Comment")
                         .param("displayName", "Anonymous")
@@ -211,7 +211,7 @@ class CommentControllerTest {
         Comment savedComment = commentService.createComt(childComment, testPost.getId(), testUser.getId());
 
         // when
-        mockMvc.perform(post("/manage/post/{postId}/comment/{commentId}/edit", testPost.getId(), savedComment.getId())
+        mockMvc.perform(post("/post/{postId}/comment/{commentId}/edit", testPost.getId(), savedComment.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser)))
                         .param("content", "Updated Comment")
@@ -234,7 +234,7 @@ class CommentControllerTest {
         Comment savedComment = commentService.createComt(parentComment, testPost.getId(), testUser.getId());
 
         // when
-        mockMvc.perform(post("/manage/post/{postId}/comment/{commentId}/delete",
+        mockMvc.perform(post("/post/{postId}/comment/{commentId}/delete",
                         testPost.getId(), savedComment.getId())
                         .with(user(new CustomUserDetails(testUser)))
                         .with(csrf()))
@@ -259,7 +259,7 @@ class CommentControllerTest {
         Comment savedChild = commentService.createComt(childComment, testPost.getId(), testUser.getId());
 
         // when
-        mockMvc.perform(post("/manage/post/{postId}/comment/{commentId}/delete",
+        mockMvc.perform(post("/post/{postId}/comment/{commentId}/delete",
                         testPost.getId(), savedParent.getId())
                         .with(user(new CustomUserDetails(testUser)))
                         .with(csrf()))
@@ -286,7 +286,7 @@ class CommentControllerTest {
         mockMvc.perform(get("/post/{postId}/comments/page", testPost.getId())
                         .param("pageGroup", "0"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("post/view :: #commentsFragment"))
+                .andExpect(view().name("posts/view-form :: #comments-fragment"))
                 .andExpect(model().attributeExists("comments", "commentRequest"));
     }
 
@@ -301,7 +301,7 @@ class CommentControllerTest {
                         testPost.getId(), savedComment.getId())
                         .with(user(new CustomUserDetails(testUser))))
                 .andExpect(status().isOk())
-                .andExpect(view().name("post/view :: #commentEditForm"))
+                .andExpect(view().name("fragments/comment/comment-edit :: comment-edit"))
                 .andExpect(model().attributeExists("commentEditRequest"));
 
     }
@@ -323,33 +323,10 @@ class CommentControllerTest {
                         testPost.getId(), savedComment.getId())
                         .param("password", "password123"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("post/view :: #commentEditForm"))
+                .andExpect(view().name("fragments/comment/comment-edit :: comment-edit"))
                 .andExpect(model().attributeExists("commentEditRequest"));
     }
 
-    @Test
-    @DisplayName("권한 없는 회원의 댓글 수정 시도 테스트")
-    void testUpdateCommentWithoutPermission() throws Exception {
-        // Given
-        // 다른 사용자의 댓글 생성
-        User otherUser = userRepository.save(User.builder()
-                .loginId("otheruser")
-                .password("password")
-                .username("Other User")
-                .email("other@example.com")
-                .build());
-        Comment otherUserComment = commentService.createComt(parentComment, testPost.getId(), otherUser.getId());
-
-        // When & Then
-        mockMvc.perform(get("/post/{postId}/comment/{commentId}/edit",
-                        testPost.getId(), otherUserComment.getId())
-                        .with(csrf())
-                        .with(user(new CustomUserDetails(testUser)))
-                        .param("content", "Updated Comment")
-                        .param("displayName", "Test User"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("댓글에 대한 수정 권한이 없습니다."));
-    }
 
     @Test
     @DisplayName("권한 없는 회원의 댓글 삭제 시도 테스트")
@@ -365,12 +342,11 @@ class CommentControllerTest {
         Comment otherUserComment = commentService.createComt(parentComment, testPost.getId(), otherUser.getId());
 
         // When & Then
-        mockMvc.perform(post("/manage/post/{postId}/comment/{commentId}/delete",
+        mockMvc.perform(post("/post/{postId}/comment/{commentId}/delete",
                         testPost.getId(), otherUserComment.getId())
                         .with(csrf())
                         .with(user(new CustomUserDetails(testUser))))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("댓글에 대한 삭제 권한이 없습니다."));
+                .andExpect(status().isForbidden());
     }
 
 

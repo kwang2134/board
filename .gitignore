@@ -35,3 +35,21 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# TypeScript
+*.js.map
+/src/main/resources/static/js/
+
+# npm
+package.json
+
+# Environment variables
+.env
+
+# Generated files
+*.jar
+

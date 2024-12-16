@@ -1,0 +1,28 @@
+.clickable-text {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.clickable-text:hover {
+    text-decoration: underline;
+}
+
+.clickable-text:active {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.button {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button:hover {
+    transform: translateY(-1px);
+}
+
+.button:active {
+    transform: translateY(1px);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+}
+

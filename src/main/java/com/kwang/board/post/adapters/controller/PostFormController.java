@@ -55,12 +55,13 @@ public class PostFormController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
+        model.addAttribute("pageGroup", pageGroup);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
 
-        return "posts/list";
+        return "posts/list-form";
     }
 
     // 탭 전환 시 게시글 목록 프래그먼트 반환
@@ -83,18 +84,19 @@ public class PostFormController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
+        model.addAttribute("pageGroup", pageGroup);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
 
-        return "posts/list :: #postsFragment";
+        return "posts/list-form :: #posts-fragment";
     }
 
     // 페이지 전환 시 게시글 목록 프래그먼트 반환
     @GetMapping("posts/page")
     public String getPostsByPage(@RequestParam PostType type,
-                                 @RequestParam int pageGroup,
+                                 @RequestParam(required = false) Integer pageGroup,
                                  @PageableDefault(size = 10) Pageable pageable, Model model) {
         Page<Post> posts = switch (type) {
             case NORMAL -> postService.viewNormalPosts(pageable);
@@ -104,6 +106,12 @@ public class PostFormController {
 
         int currentPage = posts.getNumber() + 1;
         int totalPages = posts.getTotalPages();
+
+        // pageGroup이 null이면 현재 페이지로 계산
+        if (pageGroup == null) {
+            pageGroup = (currentPage - 1) / 9;
+        }
+
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
 
@@ -116,7 +124,7 @@ public class PostFormController {
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
 
-        return "posts/list :: #postsFragment";
+        return "posts/list-form :: #posts-fragment";
     }
 
     // 게시글 검색 시 검색된 게시글 프래그먼트로 반환
@@ -147,30 +155,39 @@ public class PostFormController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("searchCond", searchCond);
 
-        return "posts/list :: #postsFragment";
+        return "posts/list-form :: #posts-fragment";
     }
 
     // 검색 페이지 전환
     @GetMapping("posts/search/page")
     public String getSearchPostsByPage(@RequestParam String searchType,
                                        @RequestParam String keyword,
-                                       @RequestParam int pageGroup,
+                                       @RequestParam(required = false) Integer pageGroup,
                                        @PageableDefault(size = 10) Pageable pageable,
                                        Model model) {
         // 검색 조건 생성
         PostSearchCond searchCond = createSearchCond(searchType, keyword);
         Page<Post> posts = postService.searchPosts(searchCond, pageable);
 
+
         // 페이지네이션 정보 계산
         int currentPage = posts.getNumber() + 1;
         int totalPages = posts.getTotalPages();
+
+        // pageGroup이 null이면 현재 페이지로 계산
+        if (pageGroup == null) {
+            pageGroup = (currentPage - 1) / 9;
+        }
+
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+
 
         // 모델에 데이터 추가
         model.addAttribute("posts", postMapper.toDTOList(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("startPage", startPage);
+        model.addAttribute("pageGroup", pageGroup);
         model.addAttribute("endPage", endPage);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
@@ -181,7 +198,7 @@ public class PostFormController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("searchCond", searchCond);
 
-        return "posts/list :: #postsFragment";
+        return "posts/list-form :: #posts-fragment";
     }
 
     /**
@@ -201,8 +218,12 @@ public class PostFormController {
             }
         }
 
+        if (request.getType() == null) {
+            request.setType("NORMAL");
+        }
+
         model.addAttribute("request", request);
-        return "post/write";
+        return "posts/write-form";
     }
 
     // 게시글 조회
@@ -222,6 +243,7 @@ public class PostFormController {
 
         // 해당 게시글의 댓글 조회
         Page<Comment> comments = commentService.viewComts(postId, pageable);
+
         // 페이지네이션 계산
         int currentPage = comments.getNumber() + 1;
         int totalPages = comments.getTotalPages();
@@ -231,6 +253,9 @@ public class PostFormController {
 
         // 게시글 정보
         model.addAttribute("post", postMapper.toResponseDTO(post));
+        model.addAttribute("commentCount", comments.getTotalElements());
+        // 회원 게시글 여부
+        model.addAttribute("user", post.getUser() != null ? post.getUser().getId() : "");
 
         // 댓글 관련 데이터
         model.addAttribute("comments", commentMapper.toResponseListDTO(comments.getContent()));
@@ -244,7 +269,7 @@ public class PostFormController {
         model.addAttribute("hasNext", comments.hasNext());
         model.addAttribute("hasPrev", comments.hasPrevious());
 
-        return "post/view";
+        return "posts/view-form";
     }
 
     /**
@@ -282,7 +307,7 @@ public class PostFormController {
         }
 
         model.addAttribute("request", request);
-        return "post/edit";
+        return "posts/edit-form";
 
     }
 

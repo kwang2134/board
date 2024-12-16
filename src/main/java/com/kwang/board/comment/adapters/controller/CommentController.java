@@ -8,12 +8,14 @@ import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
-@RequestMapping("/manage/post/{postId}/comment")
+@RequestMapping("/post/{postId}/comment")
 @RequiredArgsConstructor
 public class CommentController {
 
@@ -60,6 +62,7 @@ public class CommentController {
         // 회원 댓글인 경우
         if (comment.getUser() != null) {
             if (checkPermission(userDetails, comment)) {
+                log.info("CommentController 삭제 권한 없음(회원)");
                 throw new UnauthorizedAccessException("댓글에 대한 삭제 권한이 없습니다.");
             }
         }
@@ -67,10 +70,12 @@ public class CommentController {
         // 비회원 댓글인 경우
         else {
             if (checkPassword(commentId, password)) {
+                log.info("CommentController 삭제 권한 없음(비회원)");
                 throw new UnauthorizedAccessException("비밀번호가 일치하지 않습니다.");
             }
         }
 
+        log.info("CommentController 댓글 삭제 권한 통과");
         commentService.deleteComt(commentId);
 
         return "redirect:/post/" + postId;

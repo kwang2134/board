@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>View Post - Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/post/view.css}">
+        <link rel="stylesheet" th:href="@{/css/comment/fragments/comments-fragment.css}">
+        <link rel="stylesheet" th:href="@{/css/comment/fragments/comment-edit.css}">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="post-container">
+        <input type="hidden" id="userId" th:value="${user}">
+        <h1 class="post-title" th:text="${post.title}"></h1>
+        <div class="post-header">
+            <div class="post-info">
+                <span class="author" th:text="${post.username}"></span>
+                <span class="comment-count" th:text="|댓글 ${commentCount}|"></span>
+            </div>
+            <div class="post-meta">
+                <span class="date" th:text="${post.createdAt}"></span>
+                <span class="edit-button clickable-text">수정</span>
+                <span class="post-delete clickable-text">삭제</span>
+            </div>
+        </div>
+        <div class="post-content" th:utext="${post.content}"></div>
+
+        <!-- 댓글 수와 추천/비추천 부분 -->
+        <div class="comments-header">
+            <span class="total-comments" th:text="|댓글 ${commentCount}|"></span>
+            <div class="recommend-buttons">
+            <span class="recommend clickable-text">
+                추천 <span th:text="${post.recomCount}"></span> 👍
+            </span>
+                <span class="unrecommend clickable-text">
+                비추천 <span th:text="${post.notRecomCount}"></span> 👎
+            </span>
+            </div>
+        </div>
+
+        <!-- 댓글 프래그먼트 -->
+        <div id="comments-fragment" th:insert="fragments/comment/comments-fragment :: comments-fragment"></div>
+
+        <!-- 댓글 작성 폼 -->
+        <div class="comment-write">
+            <div id="reply-info" style="display: none;">
+                <span class="reply-to"></span>
+                <button type="button" class="cancel-reply">취소</button>
+            </div>
+
+            <form th:action="@{/post/{postId}/comment/write(postId=${post.id})}" method="post" th:object="${commentRequest}">
+                <input type="hidden" th:field="*{parentId}" id="parentCommentId">
+                <th:block th:if="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
+                    <div class="input-group">
+                        <input type="text" th:field="*{displayName}" placeholder="Nickname" class="comment-input">
+                        <input type="password" th:field="*{password}" placeholder="Password" class="comment-input">
+                    </div>
+                </th:block>
+                <textarea th:field="*{content}" class="comment-textarea" placeholder="댓글을 입력하세요" required></textarea>
+                <button type="submit" class="comment-button">write</button>
+            </form>
+        </div>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/post/view.js}"></script>
+</th:block>
+</body>
+</html>

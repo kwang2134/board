@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Sign Up - Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/user/signup.css}">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="signup-container">
+        <div class="signup-form">
+            <div class="logo">
+                <span class="logo-story">Story</span>
+                <span class="logo-board">Board</span>
+            </div>
+            <form id="signupForm" th:action th:object="${userRequest}" method="post">
+                <div class="input-group">
+                    <input type="text" id="loginId" th:field="*{loginId}"
+                           placeholder="Login_ID" class="signup-input"
+                           th:classappend="${#fields.hasErrors('loginId')} ? 'error'">
+                    <div class="message error" th:if="${#fields.hasErrors('loginId')}"
+                         th:errors="*{loginId}"></div>
+                    <div class="message"></div>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" th:field="*{password}"
+                           placeholder="Password" class="signup-input"
+                           th:classappend="${#fields.hasErrors('password')} ? 'error'">
+                    <div class="message error" th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}"></div>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Confirm Password" class="signup-input">
+                    <div class="message"></div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="username" th:field="*{username}"
+                           placeholder="Username or Nickname" class="signup-input"
+                           th:classappend="${#fields.hasErrors('username')} ? 'error'">
+                    <div class="message error" th:if="${#fields.hasErrors('username')}"
+                         th:errors="*{username}"></div>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" th:field="*{email}"
+                           placeholder="E-mail address (Optional)" class="signup-input"
+                           th:classappend="${#fields.hasErrors('email')} ? 'error'">
+                    <div class="message error" th:if="${#fields.hasErrors('email')}"
+                         th:errors="*{email}"></div>
+                </div>
+                <button type="submit" class="signup-button button">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/user/signup.js}"></script>
+</th:block>
+</body>
+</html>

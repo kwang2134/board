@@ -52,4 +52,10 @@ public class UserService implements UserCrudUseCase, LoginUseCase {
                 .filter(user -> user.getPassword().equals(password))
                 .orElseThrow(InvalidLoginException::new);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isLoginIdAvailable(String loginId) {
+        return repository.findByLoginId(loginId).isEmpty();
+    }
 }

@@ -12,6 +12,7 @@ import com.kwang.board.post.domain.repository.PostRepository;
 import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService implements CommentCrudUseCase {
@@ -116,6 +118,8 @@ public class CommentService implements CommentCrudUseCase {
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
 
+        log.info("comment.getPassword = {}, inputPassword = {}", comment.getPassword(), password);
+        log.info("checkNonUser = {}", comment.getPassword().equals(password));
         return comment.getPassword().equals(password);
     }
 }

@@ -1,8 +1,10 @@
-package com.kwang.board.user.adapters.security;
+package com.kwang.board.user.adapters.security.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -12,10 +14,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private RequestCache requestCache = new HttpSessionRequestCache();
+    private final RequestCache requestCache = new HttpSessionRequestCache();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -28,8 +32,10 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest == null) {
+            log.info("savedRequest = null");
             response.sendRedirect("/");
         } else {
+            log.info("savedRequest = {}", savedRequest.getRedirectUrl());
             String targetUrl = savedRequest.getRedirectUrl();
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }

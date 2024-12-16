@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="comments-fragment">
+    <div class="comments-container">
+        <div class="comments-list">
+            <div th:each="comment : ${comments}" class="comment"
+                 th:data-comment-id="${comment.id}"
+                 th:data-user-id="${comment.userId}">
+                <!-- 들여쓰기는 CSS로만 처리 -->
+                <div class="comment-wrapper" th:class="${comment.parentId != null ? 'reply' : ''}">
+                    <span th:if="${comment.parentId != null}" class="reply-arrow">↳</span>
+                    <div class="comment-content">
+                        <span class="comment-author" th:text="${comment.username}"></span>
+                        <span class="comment-text clickable-text" th:text="${comment.content}"></span>
+                        <span class="comment-date" th:text="${comment.createdAt}"></span>
+                        <span class="comment-edit clickable-text">수정</span>
+                        <span class="comment-delete clickable-text">삭제</span>
+                    </div>
+                    <div class="edit-form-container" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="pagination" th:if="${totalPages > 0}">
+            <a th:if="${hasPrev}" class="page-button"
+               th:href="@{/post/{postId}/comments/page(postId=${post.id}, pageGroup=${(currentPage-2)/9})}">&lt;&lt;</a>
+            <a th:if="${hasPrev}" class="page-button"
+               th:href="@{/post/{postId}/comments/page(postId=${post.id}, page=${currentPage - 2})}">&lt;</a>
+
+            <th:block th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                <a th:href="@{/post/{postId}/comments/page(postId=${post.id}, page=${pageNum - 1})}"
+                   th:text="${pageNum}"
+                   th:class="${pageNum == currentPage} ? 'page-number active' : 'page-number'"></a>
+            </th:block>
+
+            <a th:if="${hasNext}" class="page-button"
+               th:href="@{/post/{postId}/comments/page(postId=${post.id}, page=${currentPage})}">&gt;</a>
+            <a th:if="${hasNext}" class="page-button"
+               th:href="@{/post/{postId}/comments/page(postId=${post.id}, pageGroup=${currentPage/9 + 1})}">&gt;&gt;</a>
+        </div>
+    </div>
+</div>
+</html>

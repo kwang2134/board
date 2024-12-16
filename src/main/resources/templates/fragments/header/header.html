@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<header th:fragment="header">
+    <div class="header-container">
+        <div class="header-logo">
+            <a th:href="@{/}">
+                <span class="header-logo-story">Story</span>
+                <span class="header-logo-board">Board</span>
+            </a>
+        </div>
+
+        <!-- 로그인/회원가입 페이지가 아닐 때만 표시 -->
+        <div class="header-menu"
+             th:if="${!#strings.equals(currentUri, '/user/login') &&
+             !#strings.equals(currentUri, '/user/signup')}">
+            <!-- 비로그인 상태 -->
+            <div class="auth-buttons" th:if="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
+                <a th:href="@{/user/login}" class="clickable-text">로그인</a>
+                <a th:href="@{/user/signup}" class="clickable-text">회원가입</a>
+            </div>
+            <!-- 로그인 상태 -->
+            <div class="user-menu" th:unless="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
+                <span class="welcome-message" th:text="${#authentication.name} + '님 환영합니다'"></span>
+                <a th:href="@{/user/mypage}" class="clickable-text">마이페이지</a>
+                <form th:action="@{/user/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="clickable-text">로그아웃</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+</html>

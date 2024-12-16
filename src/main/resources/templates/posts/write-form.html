@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Write - Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/post/write.css}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="write-container">
+        <h1 class="write-title">Write</h1>
+        <form th:action="@{/post/write}" method="post" th:object="${request}" id="writeForm" autocomplete="off">
+            <!-- 비로그인 시에만 표시되는 필드 -->
+            <th:block th:if="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
+                <div class="input-group">
+                    <input type="text" th:field="*{displayName}" placeholder="Nickname" class="write-input">
+                </div>
+                <div class="input-group">
+                    <input type="password" th:field="*{password}" placeholder="password" class="write-input">
+                </div>
+            </th:block>
+
+            <!-- 게시글 타입 선택 -->
+            <div class="post-type">
+                <input type="radio" id="normal" th:field="*{type}" value="NORMAL" th:checked="*{type == null or type == 'NORMAL'}">
+                <label for="normal">일반</label>
+
+                <th:block th:if="${#authentication != null && (#authentication.authorities.![authority].contains('ROLE_MANAGER') || #authentication.authorities.![authority].contains('ROLE_ADMIN'))}">
+                    <input type="radio" id="notice" th:field="*{type}"  value="NOTICE">
+                    <label for="notice">공지</label>
+                </th:block>
+            </div>
+
+            <!-- 제목 입력 -->
+            <div class="input-group">
+                <input type="text" th:field="*{title}" placeholder="title" class="write-input title-input" required>
+            </div>
+
+            <!-- 내용 입력 -->
+            <div class="input-group">
+                <textarea th:field="*{content}" class="write-textarea" placeholder="내용을 입력하세요" required></textarea>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="button-group">
+                <a th:href="@{/post/write/cancel}" class="cancel-button">cancel</a>
+                <div class="right-buttons">
+                    <label for="imageUpload" class="image-button">
+                        Image <i class="fas fa-image"></i>
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/png,image/jpeg" style="display: none">
+                    <button type="submit" class="write-button">write</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/post/write.js}"></script>
+</th:block>
+</body>
+</html>

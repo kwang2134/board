@@ -34,7 +34,7 @@ public class UserFormController {
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("userRequest", new UserDTO.Request());
-        return "user/signupForm";  // templates/users/signupForm.html
+        return "user/signup-form";  // templates/users/signupForm.html
     }
 
     //로그인 -> SpringSecurity 처리
@@ -43,7 +43,7 @@ public class UserFormController {
         if (error != null) {
             model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
         }
-        return "user/loginForm";
+        return "user/login-form";
     }
 
     //마이페이지
@@ -76,7 +76,7 @@ public class UserFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
-        return "user/myPage";
+        return "user/mypage";
     }
 
     // posts 탭 페이징 처리
@@ -101,6 +101,6 @@ public class UserFormController {
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
 
-        return "user/myPage :: #postsFragment";  // posts 탭의 프래그먼트만 반환
+        return "user/mypage :: #posts-fragment";  // posts 탭의 프래그먼트만 반환
     }
 }

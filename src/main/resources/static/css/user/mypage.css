@@ -1,0 +1,255 @@
+
+
+.mypage-container {
+    padding: 40px;
+}
+
+.mypage-title {
+    font-family: 'Italianno', cursive;
+    font-size: 55px;
+    margin-left: 40px;
+    margin-bottom: 40px;
+    font-weight: 300;
+}
+
+.mypage-content {
+    display: flex;
+    gap: 60px;
+    justify-content: flex-start;
+    padding: 0 40px;
+}
+
+.tab-container {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+
+.tab {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background-color: #E5E5E5;
+}
+
+.tab:active {
+    background-color: #C4C4C4;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.tab.active {
+    background-color: #E5E5E5;
+}
+
+.content-container {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center;
+    padding-right: 40px;
+}
+
+.fragment {
+    display: none;
+}
+
+.fragment.active {
+    display: block;
+}
+
+.info-box {
+    width: 600px;
+    height: 400px;
+    padding: 40px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.info-row {
+    margin-bottom: 30px;  /* 행간 간격 증가 */
+    display: flex;
+    align-items: center;
+    padding: 0 40px;  /* 좌우 패딩 추가 */
+}
+
+.info-label {
+    font-size: 20px;  /* 텍스트 크기 증가 */
+    font-weight: bold;
+    width: 120px;  /* 라벨 영역 확보 */
+    margin-right: 40px;
+}
+
+.info-value {
+    font-size: 20px;  /* 텍스트 크기 증가 */
+    flex: 1;
+}
+
+/* edit */
+
+.edit-box {
+    width: 600px;
+    height: 400px;
+    padding: 40px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* 가운데 정렬 */
+}
+
+.edit-input {
+    width: 400px;
+    height: 35px;
+    padding: 0 15px;
+    font-family: 'Kreon', serif;
+    font-weight: 300;
+    font-size: 18px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.edit-button {
+    width: 400px;
+    height: 35px;
+    font-family: 'Kreon', serif;
+    font-weight: 300;
+    font-size: 18px;
+    background: none;
+    border: 1px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-box .logo {
+    width: 140px;  /* 헤더보다 작은 크기 */
+    height: 50px;
+    position: relative;
+    margin-bottom: 80px;
+    align-self: center;
+}
+
+.edit-box .logo-story,
+.edit-box .logo-board {
+    position: absolute;
+    font-family: 'Italianno', cursive;
+    font-size: 40px;  /* 헤더보다 작은 폰트 크기 */
+}
+
+.edit-box .logo-story {
+    left: 0;
+    top: 0;
+}
+
+.edit-box .logo-board {
+    left: 52px;  /* 비율 유지하며 조정 */
+    top: 23px;
+}
+
+.edit-box form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* posts */
+
+.posts-box {
+    width: 600px;
+    height: auto;
+    padding: 40px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.posts-table th {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #000;
+    /*font-family: 'Kreon', serif;
+    font-weight: 300;
+    font-size: 20px;  */
+    position: sticky;  /* 헤더 고정 */
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+
+.posts-table td {
+    padding: 10px;
+    /*font-family: 'Kreon', serif;
+    font-weight: 300;
+    font-size: 18px;*/
+}
+
+.no-column {
+    width: 80px;
+}
+
+.title-column {
+    width: auto;
+}
+
+.post-title {
+    text-decoration: none;
+    color: #000;
+    /*font-family: 'Kreon', serif;
+    font-weight: 300;*/
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 10px 0;
+    position: sticky;  /* 페이지네이션 고정 */
+    bottom: 0;
+    background-color: white;
+}
+
+.page-number {
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.page-number:hover {
+    background-color: #E5E5E5;
+}
+
+.page-number.active {
+    background-color: #E5E5E5;
+    font-weight: bold;
+}
+
+.page-button {
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.page-button:hover {
+    background-color: #E5E5E5;
+}

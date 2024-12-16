@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>My Page - Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/user/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/user/fragments/info.css}">
+        <link rel="stylesheet" th:href="@{/css/user/fragments/edit.css}">
+        <link rel="stylesheet" th:href="@{/css/user/fragments/posts.css}">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="mypage-container">
+        <h1 class="mypage-title">My Page</h1>
+        <div class="mypage-content">
+            <div class="tab-container">
+                <div class="tab" th:classappend="${activeTab == 'info' || activeTab == null} ? 'active'" data-tab="info">Info</div>
+                <div class="tab" th:classappend="${activeTab == 'posts'} ? 'active'" data-tab="posts">posts</div>
+                <div class="tab" th:classappend="${activeTab == 'edit'} ? 'active'" data-tab="edit">edit</div>
+            </div>
+            <div class="content-container">
+                <div id="info-fragment" class="fragment" th:classappend="${activeTab == 'info' || activeTab == null} ? 'active'"
+                     th:insert="fragments/user/info :: info-fragment"></div>
+                <div id="edit-fragment" class="fragment" th:classappend="${activeTab == 'edit'} ? 'active'"
+                     th:insert="fragments/user/edit :: edit-fragment"></div>
+                <div id="posts-fragment" class="fragment" th:classappend="${activeTab == 'posts'} ? 'active'"
+                     th:insert="fragments/user/posts :: posts-fragment"></div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/user/mypage.js}"></script>
+</th:block>
+</body>
+</html>

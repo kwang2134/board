@@ -7,6 +7,7 @@ import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Slf4j
 @Controller
 @RequestMapping("/post/{postId}")
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class CommentFormController {
     @GetMapping("/comments/page")
     public String getCommentsByPage(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable("postId") Long postId,
-                                    @RequestParam int pageGroup,
+                                    @RequestParam(required = false) Integer pageGroup,
                                     @PageableDefault(size = 15) Pageable pageable, Model model) {
 
         Page<Comment> comments = commentService.viewComts(postId, pageable);
@@ -43,6 +45,12 @@ public class CommentFormController {
 
         int currentPage = comments.getNumber() + 1;
         int totalPages = comments.getTotalPages();
+
+        // pageGroup이 null이면 현재 페이지로 계산
+        if (pageGroup == null) {
+            pageGroup = (currentPage - 1) / 9;
+        }
+
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
 
@@ -59,7 +67,7 @@ public class CommentFormController {
         model.addAttribute("hasPrev", comments.hasPrevious());
 
 
-        return "post/view :: #commentsFragment";
+        return "posts/view-form :: #comments-fragment";
     }
 
     @GetMapping("/comment/{commentId}/edit")
@@ -74,21 +82,27 @@ public class CommentFormController {
         // 회원 댓글인 경우
         if (comment.getUser() != null) {
             if (checkPermission(userDetails, comment)) {
+                log.info("CommentFormController 권한 통과 실패 (회원)");
                 throw new UnauthorizedAccessException("댓글에 대한 수정 권한이 없습니다.");
             }
         }
         // 비회원 댓글인 경우
         else {
             if (checkPassword(commentId, password)) {
+                log.info("CommentFormController 권한 통과 실패 (비회원)");
                 throw new UnauthorizedAccessException("비밀번호가 일치하지 않습니다.");
             }
         }
 
+        log.info("CommentFormController 수정 권한 통과");
+
         model.addAttribute("commentEditRequest", commentMapper.toRequestDTO(comment));
-        return "post/view :: #commentEditForm";
+        model.addAttribute("postId", postId);
+        return "fragments/comment/comment-edit :: comment-edit";
     }
 
     private boolean checkPassword(Long commentId, String password) {
+        log.info("checkInController = {}", password == null || !commentService.checkNonUserComment(commentId, password));
         return password == null || !commentService.checkNonUserComment(commentId, password);
     }
 

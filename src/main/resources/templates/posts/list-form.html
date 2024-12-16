@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/post/list.css}">
+        <link rel="stylesheet" th:href="@{/css/post/fragments/posts-fragment.css}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="tab-container">
+        <div class="tab-wrapper">
+            <div class="tab active" data-type="NORMAL">Normal</div>
+            <div class="tab" data-type="NOTICE">Notice</div>
+            <div class="tab" data-type="POPULAR">Popular</div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="header-section">
+            <h2 class="post-type-title">Normal Post</h2>
+            <a th:href="@{/post/write}" class="write-button button">글쓰기</a>
+        </div>
+        <input type="hidden" id="currentPostType" value="NORMAL">
+        <input type="hidden" id="currentSearchType" value="">
+        <input type="hidden" id="currentKeyword" value="">
+
+        <div id="posts-fragment" th:insert="fragments/post/posts-fragment :: posts-fragment"></div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <select id="searchType" class="search-dropdown">
+                    <option value="TITLE">제목</option>
+                    <option value="CONTENT">내용</option>
+                    <option value="AUTHOR">작성자</option>
+                    <option value="TITLE_CONTENT">제목 + 내용</option>
+                </select>
+                <input type="text" id="searchKeyword" class="search-input" placeholder="검색어를 입력하세요">
+                <button type="button" id="searchButton" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/post/list.js}"></script>
+</th:block>
+</body>
+</html>

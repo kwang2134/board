@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
@@ -20,10 +21,21 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<Map<String, String>> handleUnauthorizedAccess(UnauthorizedAccessException e) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(Map.of("message", e.getMessage()));
+    public ResponseEntity<?> handleUnauthorizedAccess(UnauthorizedAccessException e, HttpServletRequest request) {
+        if (isAjaxRequest(request)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", e.getMessage()));
+        } else {
+            // HTML 응답을 위한 ModelAndView 반환
+            ModelAndView mav = new ModelAndView("error/access-denied");
+            mav.addObject("errorMessage", e.getMessage());
+            return new ResponseEntity<>(mav, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 
     @ExceptionHandler({PostNotFoundException.class, UserNotFoundException.class, CommentNotFoundException.class})

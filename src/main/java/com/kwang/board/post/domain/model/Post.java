@@ -94,6 +94,7 @@ public class Post extends BaseEntity {
     }
 
     public void connectUser(User user) {
+        this.displayName = user.getUsername();
         this.user = user;
     }
 }

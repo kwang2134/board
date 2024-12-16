@@ -62,14 +62,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
     private BooleanExpression titleContains(String title) {
-        return title != null ? post.title.contains(title) : null;
+        return title != null ? post.title.containsIgnoreCase(title) : null;
     }
 
     private BooleanExpression contentContains(String content) {
-        return content != null ? post.content.contains(content) : null;
+        return content != null ? post.content.containsIgnoreCase(content) : null;
     }
 
     private BooleanExpression authorContains(String author) {
-        return author != null ? post.user.username.contains(author) : null;
+        return author != null ? post.displayName.containsIgnoreCase(author) : null;
     }
 }

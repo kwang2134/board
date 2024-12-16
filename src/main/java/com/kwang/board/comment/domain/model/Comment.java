@@ -6,14 +6,12 @@ import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.domain.model.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@BatchSize(size = 15)
 @Table(name = "comments")
 @Getter
 @Builder
@@ -73,6 +71,7 @@ public class Comment extends BaseEntity {
     }
 
     public void connectUser(User user) {
+        this.displayName = user.getUsername();
         this.user = user;
     }
 }

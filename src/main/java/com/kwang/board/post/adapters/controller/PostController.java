@@ -11,12 +11,14 @@ import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
-@RequestMapping("/manage/post")
+@RequestMapping("/post")
 @RequiredArgsConstructor
 public class PostController {
 

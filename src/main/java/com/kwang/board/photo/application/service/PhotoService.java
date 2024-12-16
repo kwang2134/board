@@ -8,6 +8,7 @@ import com.kwang.board.photo.usecase.PhotoCrudUseCase;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.post.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PhotoService implements PhotoCrudUseCase {
@@ -25,8 +27,12 @@ public class PhotoService implements PhotoCrudUseCase {
     private final PhotoRepository repository;
     private final PostRepository postRepository;
 
-//    private static final String UPLOAD_PATH = "D:\\project\\images\\";
     private String UPLOAD_PATH = "D:\\project\\images\\";
+    public void setUPLOAD_PATHForTest(String UPLOAD_PATH) {
+        this.UPLOAD_PATH = UPLOAD_PATH;
+    }
+
+    //    private static final String UPLOAD_PATH = "D:\\project\\images\\";
     private static final String TEMP_PREFIX = "temp_";
 
     private final Map<String, Set<String>> tempFileMap = new ConcurrentHashMap<>();
@@ -39,12 +45,14 @@ public class PhotoService implements PhotoCrudUseCase {
 
     @Override
     public String tempUploadPhoto(MultipartFile file, String sessionId) {
+        log.info("tempUploadPhoto 호출");
         String originalFilename = file.getOriginalFilename();
         String tempFileName = TEMP_PREFIX + UUID.randomUUID() + getExtension(originalFilename);
 
         try {
             File savedFile = new File(UPLOAD_PATH + tempFileName);
             file.transferTo(savedFile);
+            log.info("임시 파일 저장 성공");
             // 임시 파일명과 원본 파일명 매핑 저장
             tempFileMap.computeIfAbsent(sessionId, k -> new HashSet<>()).add(tempFileName);
             return "/images/" + tempFileName;
