@@ -306,7 +306,12 @@ public class PostFormController {
             request = postMapper.toRequestDTO(post);
         }
 
+        if (request.getType() == null) {
+            request.setType("NORMAL");
+        }
+
         model.addAttribute("request", request);
+        model.addAttribute("postId", post.getId());
         return "posts/edit-form";
 
     }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Edit - Story Board</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/post/edit.css}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    </th:block>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="edit-container">
+        <h1 class="edit-title">Edit</h1>
+        <form th:action="@{/post/{postId}/edit(postId=${postId})}" method="post" th:object="${request}" id="editForm" autocomplete="off">
+
+            <!-- 게시글 타입 선택 -->
+            <div class="post-type">
+                <input type="radio" id="normal" th:field="*{type}" value="NORMAL" th:checked="*{type == null or type == 'NORMAL'}">
+                <label for="normal">일반</label>
+
+                <th:block th:if="${#authentication != null && (#authentication.authorities.![authority].contains('ROLE_MANAGER') || #authentication.authorities.![authority].contains('ROLE_ADMIN'))}">
+                    <input type="radio" id="notice" th:field="*{type}"  value="NOTICE">
+                    <label for="notice">공지</label>
+                </th:block>
+            </div>
+
+            <!-- 제목 입력 -->
+            <div class="input-group">
+                <input type="text" th:field="*{title}" placeholder="title" class="edit-input title-input" required>
+            </div>
+
+            <!-- 내용 입력 -->
+            <div class="input-group">
+                <textarea th:field="*{content}" class="edit-textarea" placeholder="내용을 입력하세요" required></textarea>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="button-group">
+                <a th:href="@{/post/{postId}/edit/cancel(postId=${postId})}" class="cancel-button">cancel</a>
+                <div class="right-buttons">
+                    <label for="imageUpload" class="image-button">
+                        Image <i class="fas fa-image"></i>
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/png,image/jpeg" style="display: none">
+                    <button type="submit" class="edit-button">edit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/js/post/edit.js}"></script>
+</th:block>
+</body>
+</html>
