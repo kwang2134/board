@@ -51,6 +51,8 @@ public class PostFormController {
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
 
+        boolean hasNextGroup = endPage < totalPages;
+
         model.addAttribute("posts", postMapper.toDTOList(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("startPage", startPage);
@@ -60,6 +62,7 @@ public class PostFormController {
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         return "posts/list-form";
     }
@@ -79,6 +82,7 @@ public class PostFormController {
         int pageGroup = (currentPage - 1) / 9;
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+        boolean hasNextGroup = endPage < totalPages;
 
         model.addAttribute("posts", postMapper.toDTOList(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
@@ -89,6 +93,7 @@ public class PostFormController {
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         return "posts/list-form :: #posts-fragment";
     }
@@ -114,6 +119,7 @@ public class PostFormController {
 
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+        boolean hasNextGroup = endPage < totalPages;
 
         model.addAttribute("posts", postMapper.toDTOList(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
@@ -123,6 +129,7 @@ public class PostFormController {
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
         model.addAttribute("searchCond", new PostSearchCond());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         return "posts/list-form :: #posts-fragment";
     }
@@ -141,6 +148,7 @@ public class PostFormController {
         int pageGroup = (currentPage - 1) / 9;
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+        boolean hasNextGroup = endPage < totalPages;
 
         model.addAttribute("posts", postMapper.toDTOList(posts.getContent()));
         model.addAttribute("currentPage", currentPage);
@@ -149,6 +157,7 @@ public class PostFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         // 검색 조건 유지를 위한 정보 추가
         model.addAttribute("searchType", searchType);
@@ -181,6 +190,7 @@ public class PostFormController {
 
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+        boolean hasNextGroup = endPage < totalPages;
 
 
         // 모델에 데이터 추가
@@ -192,6 +202,7 @@ public class PostFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", posts.hasNext());
         model.addAttribute("hasPrev", posts.hasPrevious());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         // 검색 조건 유지를 위한 데이터
         model.addAttribute("searchType", searchType);
@@ -250,6 +261,7 @@ public class PostFormController {
         int pageGroup = (currentPage - 1) / 9;
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
+        boolean hasNextGroup = endPage < totalPages;
 
         // 게시글 정보
         model.addAttribute("post", postMapper.toResponseDTO(post));
@@ -268,6 +280,7 @@ public class PostFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", comments.hasNext());
         model.addAttribute("hasPrev", comments.hasPrevious());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
         return "posts/view-form";
     }

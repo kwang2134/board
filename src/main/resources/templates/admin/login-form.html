@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Login - Story Board</title>
+    <link rel="stylesheet" th:href="@{/css/admin/login.css}">
+</head>
+<body>
+<div class="admin-login-container">
+    <div class="login-form">
+        <div class="admin-title">Admin Login</div>
+        <form id="adminLoginForm" th:action="@{/admin/login-proc}" method="post">
+            <div class="input-group">
+                <input type="text" id="username" name="username"
+                       placeholder="Admin ID" class="login-input" required>
+                <div class="error-message"></div>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" name="password"
+                       placeholder="Password" class="login-input" required>
+                <div class="error-message"></div>
+            </div>
+            <div th:if="${errorMessage}" class="error-alert" th:text="${errorMessage}"></div>
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

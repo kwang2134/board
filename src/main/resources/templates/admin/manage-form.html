@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Management - Story Board</title>
+    <link rel="stylesheet" th:href="@{/css/admin/manage.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="manage-container">
+    <div class="logo">Admin Page</div>
+    <div class="user-management">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="normal">Normal Users</button>
+            <button class="tab-button" data-tab="manager">Manager Users</button>
+        </div>
+
+        <div class="user-list-container active" id="normal-users">
+            <div class="user-list">
+                <div th:each="user : ${normalUsers}" class="user-item">
+                    <span class="user-id" th:text="${user.id}"></span>
+                    <span class="user-loginId" th:text="${user.loginId}"></span>
+                    <span class="user-role" th:text="${user.role}"></span>
+                    <div class="action-buttons">
+                        <button class="appoint-btn" th:data-id="${user.id}">Appoint</button>
+                        <button class="ban-btn" th:data-id="${user.id}">Ban</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="user-list-container" id="manager-users">
+            <div class="user-list">
+                <div th:each="user : ${managerUsers}" class="user-item">
+                    <span class="user-id" th:text="${user.id}"></span>
+                    <span class="user-loginId" th:text="${user.loginId}"></span>
+                    <span class="user-role" th:text="${user.role}"></span>
+                    <div class="action-buttons">
+                        <button class="demote-btn" th:data-id="${user.id}">Demote</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" th:src="@{/js/admin/manage.js}"></script>
+</body>
+</html>

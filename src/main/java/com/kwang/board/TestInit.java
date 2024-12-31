@@ -1,9 +1,11 @@
 package com.kwang.board;
 
+import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.comment.domain.repository.CommentRepository;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.post.domain.model.PostType;
 import com.kwang.board.post.domain.repository.PostRepository;
+import com.kwang.board.user.domain.model.Role;
 import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -46,6 +48,31 @@ public class TestInit {
             User savedUser = userRepository.save(user);
             savedUser.changeManager();
             userId = savedUser.getId();
+
+            User admin = userRepository.save(User.builder()
+                    .loginId("admin")
+                    .password(encoder.encode("admin"))
+                    .username("admin")
+                    .role(Role.ADMIN)
+                    .build());
+
+            for (int i = 1; i <= 100; i++) {
+                User normalUser = User.builder()
+                        .loginId("normalUser" + i)
+                        .password(encoder.encode("비밀번호" + i))
+                        .username("일반 유저" + i)
+                        .build();
+
+                User managerUser = User.builder()
+                        .loginId("manageUser" + i)
+                        .password(encoder.encode("비밀번호" + i))
+                        .username("매니저 유저" + i)
+                        .role(Role.MANAGER)
+                        .build();
+
+                userRepository.save(normalUser);
+                userRepository.save(managerUser);
+            }
         }
 
         public void initPost() {
@@ -79,6 +106,29 @@ public class TestInit {
                 postRepository.save(newPost);
                 postRepository.save(noticePost);
                 postRepository.save(popularPost);
+
+                if (i == 100) {
+                    Comment parent = null;
+                    for (int j = 1; j <= 100; j++) {
+                        Comment comment = Comment.builder()
+                                .displayName("비회원" + j)
+                                .password("0000")
+                                .content("댓글" + j + " 내용")
+                                .parentComment(parent)
+                                .post(newPost)
+                                .build();
+
+                        if (j % 10 == 0) {
+                            parent = comment;
+                        }
+
+                        if (j % 20 == 0) {
+                            parent = null;
+                        }
+
+                        commentRepository.save(comment);
+                    }
+                }
             }
         }
     }

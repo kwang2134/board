@@ -29,6 +29,7 @@ public class CommentDTO {
         private final boolean isDeleted;
         private final String createdAt;
         private final String updatedAt;
+        private final int depth;
     }
 
 }

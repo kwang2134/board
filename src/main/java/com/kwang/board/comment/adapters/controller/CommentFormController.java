@@ -5,6 +5,9 @@ import com.kwang.board.comment.application.dto.CommentDTO;
 import com.kwang.board.comment.application.service.CommentService;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.exception.exceptions.UnauthorizedAccessException;
+import com.kwang.board.post.adapters.mapper.PostMapper;
+import com.kwang.board.post.application.service.PostService;
+import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +29,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CommentFormController {
 
     private final CommentService commentService;
+    private final PostService postService;
     private final CommentMapper commentMapper;
+    private final PostMapper postMapper;
 
     @GetMapping("/comments/page")
     public String getCommentsByPage(@AuthenticationPrincipal CustomUserDetails userDetails,
@@ -54,6 +59,11 @@ public class CommentFormController {
         int startPage = pageGroup * 9 + 1;
         int endPage = Math.min(startPage + 8, totalPages);
 
+        boolean hasNextGroup = endPage < totalPages;
+
+        Post post = postService.viewPost(postId);
+        model.addAttribute("post", postMapper.toResponseDTO(post));
+
         // 댓글 관련 데이터
         model.addAttribute("comments", commentMapper.toResponseListDTO(comments.getContent()));
         model.addAttribute("commentRequest", commentRequest);  // 작성용
@@ -65,6 +75,7 @@ public class CommentFormController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("hasNext", comments.hasNext());
         model.addAttribute("hasPrev", comments.hasPrevious());
+        model.addAttribute("hasNextGroup", hasNextGroup);
 
 
         return "posts/view-form :: #comments-fragment";

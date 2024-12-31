@@ -1,7 +1,9 @@
 package com.kwang.board.user.adapters.security;
 
-import com.kwang.board.user.adapters.security.handler.CustomAuthenticationFailureHandler;
-import com.kwang.board.user.adapters.security.handler.LoginSuccessHandler;
+import com.kwang.board.user.adapters.security.handler.admin.AdminAuthenticationFailureHandler;
+import com.kwang.board.user.adapters.security.handler.admin.AdminAuthenticationSuccessHandler;
+import com.kwang.board.user.adapters.security.handler.user.CustomAuthenticationFailureHandler;
+import com.kwang.board.user.adapters.security.handler.user.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,23 +21,29 @@ public class WebSecurityConfig {
     private final CustomAuthenticationFailureHandler failureHandler;
     private final LoginSuccessHandler loginSuccessHandler;
 
+    private final AdminAuthenticationSuccessHandler adminSuccessHandler;
+    private final AdminAuthenticationFailureHandler adminFailureHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/user/signup", "/user/login").permitAll()
-                        .requestMatchers("/post/{postId}/comment/**", "/post/{postId}/comment/{commentId}/**", "/post/**").permitAll()
-                        .requestMatchers("/posts/**", "/post/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/admin/login").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/user/mypage/**").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/user/login")
                         .successHandler(loginSuccessHandler)
                         .failureHandler(failureHandler)
+                        .permitAll()
+                )
+                .formLogin(admin -> admin
+                        .loginPage("/admin/login")
+                        .loginProcessingUrl("/admin/login-proc")
+                        .successHandler(adminSuccessHandler)
+                        .failureHandler(adminFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout

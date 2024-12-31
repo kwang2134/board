@@ -5,7 +5,7 @@ import com.kwang.board.post.adapters.mapper.PostMapper;
 import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.user.adapters.mapper.UserMapper;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
-import com.kwang.board.user.application.dto.UserDTO;
+import com.kwang.board.user.application.dto.user.UserDTO;
 import com.kwang.board.user.application.service.UserService;
 import com.kwang.board.user.domain.model.User;
 import lombok.RequiredArgsConstructor;

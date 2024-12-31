@@ -9,6 +9,8 @@
         <link rel="stylesheet" th:href="@{/css/comment/fragments/comments-fragment.css}">
         <link rel="stylesheet" th:href="@{/css/comment/fragments/comment-edit.css}">
     </th:block>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 <main layout:fragment="content">
@@ -46,17 +48,17 @@
 
         <!-- 댓글 작성 폼 -->
         <div class="comment-write">
-            <div id="reply-info" style="display: none;">
+            <div id="reply-info" style="display: none;" class="reply-info">
                 <span class="reply-to"></span>
-                <button type="button" class="cancel-reply">취소</button>
+                <button type="button" class="cancel-reply clickable-text">취소</button>
             </div>
 
             <form th:action="@{/post/{postId}/comment/write(postId=${post.id})}" method="post" th:object="${commentRequest}">
                 <input type="hidden" th:field="*{parentId}" id="parentCommentId">
                 <th:block th:if="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
                     <div class="input-group">
-                        <input type="text" th:field="*{displayName}" placeholder="Nickname" class="comment-input">
-                        <input type="password" th:field="*{password}" placeholder="Password" class="comment-input">
+                        <input type="text" th:field="*{displayName}" placeholder="Nickname" class="comment-input" required>
+                        <input type="password" th:field="*{password}" placeholder="Password" class="comment-input" required>
                     </div>
                 </th:block>
                 <textarea th:field="*{content}" class="comment-textarea" placeholder="댓글을 입력하세요" required></textarea>

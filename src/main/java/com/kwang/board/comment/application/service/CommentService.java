@@ -66,6 +66,7 @@ public class CommentService implements CommentCrudUseCase {
         if (!childComments.isEmpty()) {
             // 자식 댓글이 있는 경우 상태만 변경
             comment.changeStateToDelete();
+            comment.changeContentToDeleteMessage();
             // 자식 댓글들의 상태도 변경
             childComments.forEach(Comment::changeStateToDelete);
         } else {
@@ -106,7 +107,7 @@ public class CommentService implements CommentCrudUseCase {
     @Override
     @Transactional(readOnly = true)
     public Page<Comment> viewComts(Long postId, Pageable pageable) {
-        return repository.findByPostId(postId, pageable);
+        return repository.findAllWithPaging(postId, pageable);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.kwang.board.user.adapters.security.handler;
+package com.kwang.board.user.adapters.security.handler.user;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,16 +28,19 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         HttpSession session = request.getSession();
         session.setAttribute("user", authentication.getPrincipal());
-
-
         SavedRequest savedRequest = requestCache.getRequest(request, response);
-        if (savedRequest == null) {
-            log.info("savedRequest = null");
-            response.sendRedirect("/");
-        } else {
+        String prevPage = (String) session.getAttribute("prevPage");
+
+        if (savedRequest != null) {
             log.info("savedRequest = {}", savedRequest.getRedirectUrl());
             String targetUrl = savedRequest.getRedirectUrl();
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } else if(prevPage != null) {
+            log.info("prevPage = {}", prevPage);
+            session.removeAttribute("prevPage");
+            getRedirectStrategy().sendRedirect(request, response, prevPage);
+        } else {
+            getRedirectStrategy().sendRedirect(request, response, "/");
         }
     }
 }

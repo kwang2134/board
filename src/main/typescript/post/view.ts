@@ -32,6 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('처리 중 오류가 발생했습니다.');
             }
         } else {
+            const response = await fetch(`/post/${postId}/edit`, {
+                headers: {
+                    'Accept': 'application/json, text/html',
+                    'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+            if (!response.ok) {
+                const result = await response.json();
+                alert(result.message);
+                return;
+            }
+
             window.location.href = `/post/${postId}/edit`;
         }
     });
@@ -40,6 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
     postDeleteButton?.addEventListener('click', async () => {
         const postId = window.location.pathname.split('/').pop();
 
+        // CSRF 토큰 가져오기
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+        // headers 설정
+        const headers: Record<string, string> = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        };
+
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         if (!userId) {
             const password = prompt('비밀번호를 입력하세요:');
             if (!password) return;
@@ -47,9 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/post/${postId}/delete?password=${encodeURIComponent(password)}`, {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers
                 });
 
                 if (!response.ok) {
@@ -67,9 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/post/${postId}/delete`, {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers
                 });
 
                 if (!response.ok) {
@@ -105,9 +128,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Network response was not ok');
 
             const html = await response.text();
-            if (commentsFragment && html.trim()) {
-                commentsFragment.innerHTML = html;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            const commentsFragment = document.getElementById('comments-fragment');
+            const newCommentsContent = tempDiv.querySelector('#comments-fragment');
+
+            if (commentsFragment && newCommentsContent) {
+                commentsFragment.innerHTML = newCommentsContent.innerHTML;
             }
+
+            // 스크롤 위치 유지
+            window.scrollTo(0, commentsFragment?.offsetTop || 0);
+
         } catch (error) {
             console.error('Error loading comments:', error);
         }
@@ -183,6 +216,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const commentId = comment.dataset.commentId;
         const commentUserId = comment.dataset.userId;
 
+        // CSRF 토큰 가져오기
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+        // headers 설정
+        const headers: Record<string, string> = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        };
+
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         if (!commentUserId) {
             const password = prompt('비밀번호를 입력하세요:');
             if (!password) return;
@@ -190,9 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/post/${postId}/comment/${commentId}/delete?password=${encodeURIComponent(password)}`, {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers
                 });
 
                 if (!response.ok) {
@@ -210,9 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/post/${postId}/comment/${commentId}/delete`, {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers
                 });
 
                 if (!response.ok) {
@@ -284,10 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!comment) return;
 
         // 대댓글인 경우 클릭 무시
-        if (comment.closest('.reply')) return;
+        if (comment.classList.contains('reply') ||
+            !target.classList.contains('clickable-text')) {
+                return;
+        }
 
         const commentId = comment.dataset.commentId;
         const commentText = target.textContent || '';
+
+        if (commentText === "삭제된 댓글입니다.") {
+                return;
+        }
 
         // 댓글 내용 축약 (8자 + ...)
         const truncatedText = commentText.length > 8

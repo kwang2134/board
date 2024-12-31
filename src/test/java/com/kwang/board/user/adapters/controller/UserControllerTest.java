@@ -1,7 +1,7 @@
 package com.kwang.board.user.adapters.controller;
 
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
-import com.kwang.board.user.application.dto.UserUpdateDTO;
+import com.kwang.board.user.application.dto.user.UserUpdateDTO;
 import com.kwang.board.user.application.service.UserService;
 import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;

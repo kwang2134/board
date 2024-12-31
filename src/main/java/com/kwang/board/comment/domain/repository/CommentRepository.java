@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Page<Comment> findByPostId(Long postId, Pageable pageable);
+    Page<Comment> findByPostIdOrderByIdDesc(Long postId, Pageable pageable);
 
     List<Comment> findByParentCommentId(Long parentCommentId);
 
@@ -27,5 +27,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "WHERE c.id = :commentId")
     Optional<Comment> findByIdWithUserAndParent(@Param("commentId") Long commentId);
 
-
+    @Query("SELECT c FROM Comment c "+
+    "WHERE c.post.id = :postId " +
+    "ORDER BY COALESCE(c.parentComment.id, c.id) DESC, c.id ASC")
+    Page<Comment> findAllWithPaging(@Param("postId") Long postId, Pageable pageable);
 }

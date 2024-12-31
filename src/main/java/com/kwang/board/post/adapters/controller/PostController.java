@@ -65,6 +65,7 @@ public class PostController {
     public String deletePost(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @PathVariable("id") Long postId,
                              @RequestParam(required = false) String password) {
+        log.info("게시글 삭제 호출");
         Post post = postService.viewPost(postId);
 
         // 회원 게시글인 경우
@@ -81,6 +82,7 @@ public class PostController {
             }
         }
 
+        log.info("게시글 삭제 성공");
         photoService.deletePhoto(postId);
         postService.deletePost(postId);
         return "redirect:/";

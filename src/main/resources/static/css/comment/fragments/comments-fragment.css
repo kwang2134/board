@@ -1,3 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Kreon:wght@300&display=swap');
+
+/* 페이지네이션 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    font-family: 'Kreon', serif;
+    font-size: 14px;
+    color: #000;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: #000;
+}
+
+.pagination a.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.pagination a:hover {
+    color: #555;
+}
+
+.page-number, .page-button {
+    font-family: 'Kreon', serif;
+    color: #000;
+}
+
+.page-number.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.recommend-buttons {
+    display: flex;
+    gap: 15px;
+}
+
 .comments-container {
     margin-top: 40px;
     border-top: 1px solid #000;
@@ -11,11 +53,6 @@
     align-items: center;
 }
 
-.recommend-buttons {
-    display: flex;
-    gap: 15px;
-}
-
 .comments-list {
     padding: 20px 0;
 }
@@ -26,8 +63,8 @@
 
 .comment-content {
     display: flex;
-    gap: 15px;
     align-items: center;
+    gap: 15px;
 }
 
 .comment-author {
@@ -42,10 +79,16 @@
     color: #666;
 }
 
+
+
 /* 대댓글 */
 .reply {
-    margin-left: 40px;
+    margin: 15px 0 0 40px;
     position: relative;
+}
+
+.reply .comment-content {
+    padding-left: 20px;
 }
 
 .reply-arrow {
@@ -68,5 +111,3 @@
     color: #666;
     font-style: italic;
 }
-
-

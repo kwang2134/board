@@ -68,6 +68,11 @@
     bottom: -20px;
     color: #ff0000;
     font-size: 12px;
+    display: none;
+}
+
+.error-message[style*="display: block"] {
+    display: block !important;
 }
 
 .login-button {

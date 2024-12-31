@@ -62,6 +62,11 @@ public class Comment extends BaseEntity {
         this.isDeleted = true;
     }
 
+    public void changeContentToDeleteMessage() {
+        this.displayName = null;
+        this.content = "삭제된 댓글입니다.";
+    }
+
     public void connectParent(Comment parentComment) {
         this.parentComment = parentComment;
     }

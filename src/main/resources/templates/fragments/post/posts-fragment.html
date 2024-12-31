@@ -43,7 +43,7 @@
 
                 <a th:if="${hasNext}" class="page-button"
                    th:href="@{/posts/search/page(searchType=${searchType}, keyword=${keyword}, page=${currentPage})}">></a>
-                <a th:if="${hasNext}" class="page-button"
+                <a th:if="${hasNextGroup}" class="page-button"
                    th:href="@{/posts/search/page(searchType=${searchType}, keyword=${keyword}, pageGroup=${currentPage/9 + 1})}">≫</a>
             </th:block>
 
@@ -62,7 +62,7 @@
 
                 <a th:if="${hasNext}" class="page-button"
                    th:href="@{/posts/page(type=${postType}, page=${currentPage})}">></a>
-                <a th:if="${hasNext}" class="page-button"
+                <a th:if="${hasNextGroup}" class="page-button"
                    th:href="@{/posts/page(type=${postType}, pageGroup=${currentPage/9 + 1})}">≫</a>
             </th:block>
         </div>

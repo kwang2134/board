@@ -22,4 +22,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
 
     Optional<Post> findByUserIdAndId(Long userId, Long postId);
+
 }

@@ -5,9 +5,10 @@ import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.adapters.mapper.UserMapper;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
-import com.kwang.board.user.application.dto.UserDTO;
+import com.kwang.board.user.application.dto.user.UserDTO;
 import com.kwang.board.user.application.service.UserService;
 import com.kwang.board.user.domain.model.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,9 +40,18 @@ public class UserFormController {
 
     //로그인 -> SpringSecurity 처리
     @GetMapping("/login")
-    public String loginForm(@RequestParam(required = false) String error, Model model) {
+    public String loginForm(@RequestParam(required = false) String error,
+                            @RequestParam(required = false) String message,
+                            @RequestParam(required = false) String username,
+                            Model model, HttpServletRequest request) {
         if (error != null) {
-            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            model.addAttribute("errorMessage", message);
+            model.addAttribute("username", username);
+        }
+
+        String uri = request.getHeader("Referer");
+        if (uri != null && !uri.contains("/login")) {
+            request.getSession().setAttribute("prevPage", uri);
         }
         return "user/login-form";
     }

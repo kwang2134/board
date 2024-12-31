@@ -22,7 +22,8 @@ public class CommentMapper {
                 comment.getContent(),
                 comment.isDeleted(),
                 comment.getCreatedAt().format(formatter),
-                comment.getUpdatedAt().format(formatter))
+                comment.getUpdatedAt().format(formatter),
+                comment.getParentComment() != null ? 1 : 0)
         ).toList();
     }
 

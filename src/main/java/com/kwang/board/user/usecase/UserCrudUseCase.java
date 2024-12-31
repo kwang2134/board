@@ -1,6 +1,6 @@
 package com.kwang.board.user.usecase;
 
-import com.kwang.board.user.application.dto.UserUpdateDTO;
+import com.kwang.board.user.application.dto.user.UserUpdateDTO;
 import com.kwang.board.user.domain.model.User;
 
 public interface UserCrudUseCase {

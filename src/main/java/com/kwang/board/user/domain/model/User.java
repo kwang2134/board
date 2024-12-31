@@ -3,7 +3,7 @@ package com.kwang.board.user.domain.model;
 import com.kwang.board.comment.domain.model.Comment;
 import com.kwang.board.global.domain.BaseEntity;
 import com.kwang.board.post.domain.model.Post;
-import com.kwang.board.user.application.dto.UserUpdateDTO;
+import com.kwang.board.user.application.dto.user.UserUpdateDTO;
 import jakarta.persistence.*;
 import lombok.*;
 

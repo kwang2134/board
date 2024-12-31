@@ -39,6 +39,11 @@ public class CommentController {
                 postId,
                 userId);
 
+        if (parentComment == null) {
+            log.info("원본 댓글 작성");
+        } else {
+            log.info("대댓글 작성, 원본 댓글 아이디 ={}", commentRequest.getParentId());
+        }
 
         return "redirect:/post/" + postId;
     }
@@ -57,6 +62,7 @@ public class CommentController {
                                 @PathVariable("postId") Long postId,
                                 @RequestParam(required = false) String password){
 
+        log.info("댓글 삭제 호출");
         Comment comment = commentService.viewComtWithUser(commentId);
 
         // 회원 댓글인 경우
@@ -82,6 +88,7 @@ public class CommentController {
     }
 
     private boolean checkPassword(Long commentId, String password) {
+        log.info("commentId = {}, password = {}", commentId, password);
         return password == null || !commentService.checkNonUserComment(commentId, password);
     }
 

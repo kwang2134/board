@@ -1,4 +1,4 @@
-package com.kwang.board.user.adapters.security.handler;
+package com.kwang.board.user.adapters.security.handler.user;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +27,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             errorMessage = "필수 입력 사항입니다.";
         }
 
-        response.sendRedirect("/user/login?error=true&message=" + URLEncoder.encode(errorMessage, StandardCharsets.UTF_8));
+        String username = request.getParameter("username");
+        response.sendRedirect("/user/login?error=true&message=" +
+                URLEncoder.encode(errorMessage, StandardCharsets.UTF_8) +
+                "&username=" + URLEncoder.encode(username, StandardCharsets.UTF_8));
     }
 }

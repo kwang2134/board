@@ -1,7 +1,7 @@
 package com.kwang.board.user.adapters.mapper;
 
-import com.kwang.board.user.application.dto.UserDTO;
-import com.kwang.board.user.application.dto.UserUpdateDTO;
+import com.kwang.board.user.application.dto.user.UserDTO;
+import com.kwang.board.user.application.dto.user.UserUpdateDTO;
 import com.kwang.board.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

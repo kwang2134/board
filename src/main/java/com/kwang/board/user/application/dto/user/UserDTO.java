@@ -1,4 +1,4 @@
-package com.kwang.board.user.application.dto;
+package com.kwang.board.user.application.dto.user;
 
 import com.kwang.board.global.validation.ValidationGroups;
 import jakarta.validation.constraints.Email;
