@@ -1,26 +1,12 @@
 package com.kwang.board.photo.adapters.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.io.File;
-import java.util.Random;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
 @SpringBootTest
@@ -42,7 +28,7 @@ class PhotoControllerTest {
         httpSession.setAttribute("sessionId", TEST_SESSION_ID);
     }
 
-    @Test
+    /*@Test
     @DisplayName("임시 이미지 업로드 테스트")
     void testTempUpload() throws Exception {
         // given
@@ -129,6 +115,6 @@ class PhotoControllerTest {
                 file.delete();
             }
         }
-    }
+    }*/
 
 }

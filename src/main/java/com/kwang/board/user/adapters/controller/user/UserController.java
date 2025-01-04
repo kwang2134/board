@@ -1,4 +1,4 @@
-package com.kwang.board.user.adapters.controller;
+package com.kwang.board.user.adapters.controller.user;
 
 import com.kwang.board.global.validation.ValidationGroups;
 import com.kwang.board.post.adapters.mapper.PostMapper;

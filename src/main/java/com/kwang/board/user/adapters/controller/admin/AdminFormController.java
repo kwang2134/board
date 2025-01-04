@@ -1,4 +1,4 @@
-package com.kwang.board.user.adapters.controller;
+package com.kwang.board.user.adapters.controller.admin;
 
 import com.kwang.board.user.adapters.mapper.AdminMapper;
 import com.kwang.board.user.application.service.UserService;

@@ -23,15 +23,19 @@
                            placeholder="Login_ID" class="login-input"
                            th:value="${username}"
                            th:classappend="${errorMessage != null} ? 'error'">
-                    <div class="error-message"
-                         th:if="${errorMessage != null}"
-                         th:text="${errorMessage}" style="display: block;"></div>
+                    <div class="error-message" th:classappend="${errorMessage != null} ? 'show'">
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" name="password"
                            placeholder="Password" class="login-input"
                            th:classappend="${errorMessage != null} ? 'error'">
-                    <div class="error-message"></div>
+                    <div class="error-message" th:classappend="${errorMessage != null} ? 'show'">
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
                 </div>
                 <button type="submit" class="login-button button">Login</button>
                 <div class="signup-link">

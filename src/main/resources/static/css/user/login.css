@@ -63,16 +63,14 @@
 }
 
 .error-message {
-    position: absolute;
-    left: 0;
-    bottom: -20px;
-    color: #ff0000;
-    font-size: 12px;
     display: none;
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
-.error-message[style*="display: block"] {
-    display: block !important;
+.error-message.show {
+    display: block;
 }
 
 .login-button {

@@ -25,25 +25,18 @@ public class WebSecurityConfig {
     private final AdminAuthenticationFailureHandler adminFailureHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain  userFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher(request -> !request.getRequestURI().startsWith("/admin/"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/login").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/mypage/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/user/login")
+                        .loginProcessingUrl("/user/login")
                         .successHandler(loginSuccessHandler)
                         .failureHandler(failureHandler)
-                        .permitAll()
-                )
-                .formLogin(admin -> admin
-                        .loginPage("/admin/login")
-                        .loginProcessingUrl("/admin/login-proc")
-                        .successHandler(adminSuccessHandler)
-                        .failureHandler(adminFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -57,6 +50,27 @@ public class WebSecurityConfig {
                         .ignoringRequestMatchers("/api/**")  // API 요청은 CSRF 제외
                 );
 
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/admin/**")  // admin 관련 URL만 처리
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/login").permitAll()
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .formLogin(form -> form
+                        .loginPage("/admin/login")
+                        .loginProcessingUrl("/admin/login")
+                        .successHandler(adminSuccessHandler)
+                        .failureHandler(adminFailureHandler)
+                        .permitAll()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")
+                );
         return http.build();
     }
 

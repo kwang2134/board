@@ -10,10 +10,12 @@ import com.kwang.board.user.domain.model.User;
 import com.kwang.board.user.domain.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("local")
 @Component
 @RequiredArgsConstructor
 public class TestInit {

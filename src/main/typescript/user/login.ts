@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm') as HTMLFormElement;
 
     loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
         const username = (document.getElementById('username') as HTMLInputElement);
         const password = (document.getElementById('password') as HTMLInputElement);
 
@@ -16,20 +14,24 @@ document.addEventListener('DOMContentLoaded', () => {
         clearErrors();
 
         if (!username.value.trim()) {
+            e.preventDefault();
             showError('username', '아이디는 필수 입력 사항입니다.');
             isValid = false;
         }
 
         if (!password.value.trim()) {
+            e.preventDefault();
             showError('password', '비밀번호는 필수 입력 사항입니다.');
             isValid = false;
         }
 
-        if (isValid) {
-            loginForm.submit();
+        // isValid가 false일 때만 preventDefault
+        if (!isValid) {
+            e.preventDefault();
         }
     });
 });
+
 
 function clearErrors() {
     const errorFields = document.querySelectorAll('.error');

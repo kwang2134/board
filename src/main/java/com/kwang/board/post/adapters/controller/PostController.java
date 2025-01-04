@@ -8,6 +8,7 @@ import com.kwang.board.post.application.dto.PostDTO;
 import com.kwang.board.post.application.service.PostService;
 import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.user.adapters.security.userdetails.CustomUserDetails;
+import com.kwang.board.user.domain.model.Role;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -105,6 +106,12 @@ public class PostController {
     }
 
     private boolean checkPermission(CustomUserDetails userDetails, Post post) {
-        return userDetails == null || !post.getUser().getId().equals(userDetails.getId());
+        // 사용자가 없거나 게시글 작성자가 아닌 경우
+        if (userDetails == null || !post.getUser().getId().equals(userDetails.getId())) {
+            // 매니저 이상 권한인 경우 삭제 허용
+            return userDetails == null ||
+                    !(userDetails.getRole() == Role.MANAGER || userDetails.getRole() == Role.ADMIN);
+        }
+        return false;  // 게시글 작성자인 경우 삭제 허용
     }
 }
