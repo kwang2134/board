@@ -67,6 +67,9 @@ public class Post extends BaseEntity {
 
     public int recommendPost() {
         this.recomCount++;
+        if (this.recomCount >= 10 && this.postType == PostType.NORMAL) {
+            this.postType = PostType.POPULAR;
+        }
 
         return recomCount;
     }

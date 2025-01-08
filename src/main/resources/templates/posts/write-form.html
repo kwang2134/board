@@ -17,10 +17,10 @@
             <!-- 비로그인 시에만 표시되는 필드 -->
             <th:block th:if="${#authentication == null || #authentication instanceof T(org.springframework.security.authentication.AnonymousAuthenticationToken)}">
                 <div class="input-group">
-                    <input type="text" th:field="*{displayName}" placeholder="Nickname" class="write-input">
+                    <input type="text" th:field="*{displayName}" placeholder="Nickname" class="write-input" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" th:field="*{password}" placeholder="password" class="write-input">
+                    <input type="password" th:field="*{password}" placeholder="password" class="write-input" required>
                 </div>
             </th:block>
 

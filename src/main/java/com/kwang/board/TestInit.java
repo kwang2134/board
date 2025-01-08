@@ -80,12 +80,13 @@ public class TestInit {
         public void initPost() {
             User user = userRepository.findById(userId).get();
 
-            for (int i = 1; i <= 100; i++) {
+            for (int i = 1; i <= 200; i++) {
                 Post newPost = Post.builder()
                         .title("일반글 " + i + " 제목입니다.")
                         .content("일반글 " + i + " 내용입니다.")
                         .postType(PostType.NORMAL)
                         .displayName("kwang2134")
+                        .recomCount(9)
                         .user(user)
                         .build();
 
@@ -102,6 +103,7 @@ public class TestInit {
                         .content("인기글 " + i + " 내용입니다.")
                         .postType(PostType.POPULAR)
                         .displayName("Anonymous")
+                        .recomCount(11)
                         .password("1111")
                         .build();
 
