@@ -1,9 +1,9 @@
 package com.kwang.board.user.adapters.security;
 
-import com.kwang.board.user.adapters.security.handler.admin.AdminAuthenticationFailureHandler;
-import com.kwang.board.user.adapters.security.handler.admin.AdminAuthenticationSuccessHandler;
-import com.kwang.board.user.adapters.security.handler.user.CustomAuthenticationFailureHandler;
-import com.kwang.board.user.adapters.security.handler.user.LoginSuccessHandler;
+import com.kwang.board.user.adapters.security.handler.admin.AdminAuthFailureHandler;
+import com.kwang.board.user.adapters.security.handler.admin.AdminAuthSuccessHandler;
+import com.kwang.board.user.adapters.security.handler.user.UserAuthFailureHandler;
+import com.kwang.board.user.adapters.security.handler.user.UserAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private final CustomAuthenticationFailureHandler failureHandler;
-    private final LoginSuccessHandler loginSuccessHandler;
+    private final UserAuthFailureHandler failureHandler;
+    private final UserAuthSuccessHandler successHandler;
 
-    private final AdminAuthenticationSuccessHandler adminSuccessHandler;
-    private final AdminAuthenticationFailureHandler adminFailureHandler;
+    private final AdminAuthSuccessHandler adminSuccessHandler;
+    private final AdminAuthFailureHandler adminFailureHandler;
 
     @Bean
     public SecurityFilterChain  userFilterChain(HttpSecurity http) throws Exception {
@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/user/login")
                         .loginProcessingUrl("/user/login")
-                        .successHandler(loginSuccessHandler)
+                        .successHandler(successHandler)
                         .failureHandler(failureHandler)
                         .permitAll()
                 )
