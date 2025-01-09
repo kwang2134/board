@@ -22,8 +22,8 @@
     - 백엔드
     - 프론트엔드
 - [프로젝트 결과](#프로젝트-결과)
-  - 결과물
-  - 후기
+  - [결과물](#결과물)
+  - [후기](#후기)
 
 ## **프로젝트 소개**
 
@@ -398,7 +398,8 @@
 
 ### **DB 구조**
 
-데이터베이스 구조 이미지
+![database](https://github.com/user-attachments/assets/81e888dc-d820-40ba-aef1-81f4f24108ba)
+
 
 ## **개발 일지**
 프로젝트를 진행하며 작성했던 개발 일지입니다.
@@ -449,13 +450,21 @@
   <summary>회원</summary>
 
 **로그인**
-로그인 이미지
+![로그인](https://github.com/user-attachments/assets/3a8e4bd3-606f-4cbe-ade0-680f26bddc69)
+
 
 **회원가입**
-회원가입 이미지
+![회원가입](https://github.com/user-attachments/assets/0b732a2d-feb4-40be-9334-29faf0483f3e)
 
-**마이페이지**
-마이페이지 이미지
+
+**마이페이지 Info**
+![마이페이지 info](https://github.com/user-attachments/assets/4f72dd85-d2f3-49d8-99b0-3f258855d5d7)
+
+**마이페이지 Posts**
+![마이페이지 posts](https://github.com/user-attachments/assets/8915de71-9701-48c3-9964-c98c2c493694)
+
+**마이페이지 Edit**
+![마이페이지 edit](https://github.com/user-attachments/assets/9f78272c-66a5-46bd-bc84-71e2367f4a39)
 
 </details>
 
@@ -463,51 +472,64 @@
   <summary>게시글</summary>
 
 **게시글 목록(일반)**
-일반 이미지
+![게시글 목록](https://github.com/user-attachments/assets/40327a56-587b-41da-ac6d-8016b9c8f575)
+
 
 **게시글 목록(공지)**
-공지 이미지
+![게시글 목록 공지](https://github.com/user-attachments/assets/865230cd-d52d-4f36-8cdb-002365cc3607)
+
 
 **게시글 목록(인기)**
-인기 이미지
+![게시글 목록 인기](https://github.com/user-attachments/assets/435f8dc8-0d15-4a4a-a790-4ff00bc591b4)
+
 
 **게시글 작성(비회원)**
-비회원 작성
+![게시글 작성 비회원](https://github.com/user-attachments/assets/6b386771-34ad-462f-a110-215d1b02c1eb)
+
 
 **게시글 작성(회원)**
-회원 작성
+![게시글 작성 일반회원](https://github.com/user-attachments/assets/ad5568be-1522-4f2a-a72f-76f938a1f28f)
+
 
 **게시글 작성(매니저)**
-매니저 작성
+![게시글 작성 매니저](https://github.com/user-attachments/assets/dec55028-2ad2-4f55-aaec-547e921226c9)
+
 
 **게시글 조회**
-조회 이미지
+![일반 게시글](https://github.com/user-attachments/assets/935a7740-9767-4d09-8ee2-3aa4db6c9c0c)
+
 
 **게시글 조회(이미지 포함)**
-이미지 포함
+![이미지와 사진이 포함된 글](https://github.com/user-attachments/assets/9e7f14a7-5aca-4046-8815-250833acf0f2)
+
 
 **게시글 수정**
-수정 이미지
+![게시글 수정](https://github.com/user-attachments/assets/4381407f-2810-4aac-abba-6a6095b6a9aa)
+
 </details>
 
 <details>
   <summary>관리자</summary>
 
 **관리자 로그인**
-로그인
+![관리자 로그인](https://github.com/user-attachments/assets/466a7693-dfe1-47b5-bbc0-a34e444b55e9)
+
 
 **회원 관리**
-관리
+![회원관리](https://github.com/user-attachments/assets/208c194a-0a16-4293-ba2f-33c63d8f19f0)
+
 </details>
 
 <details>
   <summary>에러</summary>
 
 **404**
-404
+![에러페이지 404](https://github.com/user-attachments/assets/0ced1533-c759-4645-883b-f4907e341364)
+
 
 **500**
-500
+![에러페이지 500](https://github.com/user-attachments/assets/dc66a48f-ac1b-4a75-bc18-8297e439330b)
+
 </details>
 
 동작 영상
