@@ -9,6 +9,7 @@ import com.kwang.board.post.domain.model.Post;
 import com.kwang.board.post.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +28,12 @@ public class PhotoService implements PhotoCrudUseCase {
     private final PhotoRepository repository;
     private final PostRepository postRepository;
 
-    private String UPLOAD_PATH = "D:\\project\\images\\";
+    @Value("${upload.path}")
+    private String UPLOAD_PATH;
+
     public void setUPLOAD_PATHForTest(String UPLOAD_PATH) {
         this.UPLOAD_PATH = UPLOAD_PATH;
     }
-
-    //    private static final String UPLOAD_PATH = "D:\\project\\images\\";
     private static final String TEMP_PREFIX = "temp_";
 
     private final Map<String, Set<String>> tempFileMap = new ConcurrentHashMap<>();

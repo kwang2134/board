@@ -1,5 +1,6 @@
 package com.kwang.board.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -8,10 +9,13 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value(("${upload.path}"))
+    private String uploadPath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:///D:/project/images/")
+                .addResourceLocations("file:" + uploadPath)
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
@@ -21,8 +25,5 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("classpath:/static/js/");
-
-        /*registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/images/");*/
     }
 }
